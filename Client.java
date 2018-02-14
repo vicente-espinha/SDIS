@@ -4,20 +4,29 @@ import java.net.*;
 
 public class Client{
 
-  private String host;
-  private String port;
-  private String oper;
-  private String opnd;
+  public Client(){
+    private static String host;
+    private static String port;
+    private String oper;
+    private String opnd;
+  }
 
-  public void main(String[] args){
+  public static void main(String[] args){
 
-    // if(args.lengt)
-    this.host = args[0];
-    this.port = args[1];
-    this.oper = args[2];
-    this.opnd = args[3];
-    //private DatagramSocket socket = new DatagramSocket(port.)
-    start();
+    if(args.length == 4){
+      this.host = args[0];
+      this.port = args[1];
+      this.oper = args[2];
+      this.opnd = args[3];
+      //private DatagramSocket socket = new DatagramSocket(port.)
+      start();
+    }
+    else{
+      System.out.println("Usage : java Client <host_name> <port_number> <oper> <opnd>*");
+      return;
+    }
+
+
 
   }
 
