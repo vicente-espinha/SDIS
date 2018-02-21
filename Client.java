@@ -31,8 +31,9 @@ public class Client{
     //get response
     byte[] rbuf = new byte[256];
     DatagramPacket packetreceived = new DatagramPacket(rbuf, rbuf.length);
+    System.out.println("AAA");
     client.receivePacket(packetreceived);
-
+    System.out.println("CCC");
     // display response
     String received = new String(packetreceived.getData());
     if(received.contains(";")){

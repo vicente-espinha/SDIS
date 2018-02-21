@@ -22,20 +22,25 @@ public class Server{
 
       String[] msg = (new String(packet.getData())).split(";");
       String answer = new String();
+      System.out.println(msg[0] + " + " + msg[1]);
       if(msg[0] == "register"){
         answer = server.register(cars, msg[1], msg[2]);
-
-      } else if(msg[0] == "lookup") {
+        System.out.println("AAA" + port);
+      } else if(msg[0].equals("lookup")) {
         answer = server.lookup(cars, msg[1]);
+        System.out.println("BBB" + answer);
       } else {
         answer = "-1";
+        System.out.println("CCC" + port);
       }
 
       InetAddress address = packet.getAddress();
-      DatagramPacket packetsend = new DatagramPacket(answer.getBytes(), answer.length(), address, Integer.parseInt(port));
+      System.out.println(address);
+      DatagramPacket packetsend = new DatagramPacket(answer.getBytes(), answer.getBytes().length, address, Integer.parseInt(port));
       server.sendPacket(packetsend);
+      System.out.println(answer.getBytes());
+      //server.socket.close();
     }
-    server.socket.close();
   }
 
   public Server(String port){
