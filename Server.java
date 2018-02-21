@@ -10,7 +10,7 @@ public class Server{
   public static void main(String[] args) throws IOException{
 
     if(args.length == 1){
-      Server server = new Server();
+      Server server = new Server(args[0]);
       String cars = "";
       String port = args[0];
       System.out.println("Opened server in port " + port);
@@ -20,7 +20,7 @@ public class Server{
 
       server.receivePacket(packet);
 
-      String[] msg = (new String(packet.getData())).split(":");
+      String[] msg = (new String(packet.getData())).split(";");
       String answer = new String();
       if(msg[0] == "register"){
         answer = server.register(cars, msg[1], msg[2]);
@@ -35,11 +35,12 @@ public class Server{
       DatagramPacket packetsend = new DatagramPacket(answer.getBytes(), answer.length(), address, Integer.parseInt(port));
       server.sendPacket(packetsend);
     }
+    server.socket.close();
   }
 
-  public Server(){
+  public Server(String port){
     try{
-      this.socket = new DatagramSocket();
+      this.socket = new DatagramSocket(Integer.parseInt(port));
     }catch(SocketException e){
       System.out.println("Error opening socket!\n");
     }
