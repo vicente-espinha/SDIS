@@ -8,9 +8,9 @@ public class Client{
 
   private DatagramSocket socket;
 
-  public void main(String[] args)throws IOException{
+  public static void main(String[] args)throws IOException{
 
-    if (args.length != 4 || args.length != 3) {
+    if (args.length != 5 && args.length != 4) {
       System.out.println("Usage: java Client <hostname> <port> <operation> <operand>+");
       return;
     }
@@ -45,7 +45,7 @@ public class Client{
       else
         System.out.println("Registed with success. " + received + " vehicles in database");
     }
-    this.socket.close();
+    client.socket.close(  );
 
   }
 
