@@ -22,19 +22,19 @@ public class Client{
     String opnd = "";
     if(args.length == 4)
        opnd = args[3];
-    String request = oper + ":" + opnd;
+    String request = oper + ";" + opnd;
     byte[] sbuf = request.getBytes();
     InetAddress address = InetAddress.getByName(host);
     DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, address, Integer.parseInt(port));
     client.sendPacket(packet);
 
     //get response
-    byte[] rbuf = new byte[sbuf.length];
+    byte[] rbuf = new byte[256];
     DatagramPacket packetreceived = new DatagramPacket(rbuf, rbuf.length);
-    client.receivePacket(packet);
+    client.receivePacket(packetreceived);
 
     // display response
-    String received = new String(packet.getData());
+    String received = new String(packetreceived.getData());
     if(received.contains(";")){
       String[] parts = received.split(";");
       System.out.println(parts[0] + " belongs to " + parts[1]);
@@ -45,7 +45,7 @@ public class Client{
       else
         System.out.println("Registed with success. " + received + " vehicles in database");
     }
-    client.socket.close(  );
+    client.socket.close();
 
   }
 
@@ -72,9 +72,4 @@ public class Client{
       System.out.println("Error sending packet to socket!\n");
     }
   }
-
-  public void start(){
-
-  }
-
 }
