@@ -2,50 +2,49 @@ import java.lang.String;
 import java.net.*;
 import java.lang.Integer;
 import java.io.IOException;
+import java.util.Hashtable;
 
 public class Server{
 
   private DatagramSocket socket;
+  private Hashtable<String,String> dataBase;
 
   public static void main(String[] args) throws IOException{
 
     if(args.length == 1){
-      Server server = new Server(args[0]);
-      String cars = "";
+
       String port = args[0];
+      Server server = new Server(port);
       System.out.println("Opened server in port " + port);
 
-      byte[] buf = new byte[256];
-      DatagramPacket packet = new DatagramPacket(buf, buf.length);
+      while(true){
+        byte[] buf = new byte[512];
+        DatagramPacket packet = new DatagramPacket(buf,512);
 
-      server.receivePacket(packet);
+        server.receivePacket(packet);
+        String[] msg = (new String(packet.getData())).split(";");
 
-      String[] msg = (new String(packet.getData())).split(";");
-      String answer = new String();
-      System.out.println(msg[0] + " + " + msg[1]);
-      if(msg[0] == "register"){
-        answer = server.register(cars, msg[1], msg[2]);
-        System.out.println("AAA" + port);
-      } else if(msg[0].equals("lookup")) {
-        answer = server.lookup(cars, msg[1]);
-        System.out.println("BBB" + answer);
-      } else {
-        answer = "-1";
-        System.out.println("CCC" + port);
+        String answer = new String();
+        System.out.println(msg[0] + " + " + msg[1]);
+        if(msg[0] == "REGISTER"){
+          answer = server.register(msg[1], msg[2]); //processes register
+        } else if(msg[0].equals("LOOKUP")) {
+          answer = server.lookup(msg[1]);  //processes lookup
+        } else {
+          answer = "-1";
+        }
+
+        DatagramPacket packetsend = new DatagramPacket(answer.getBytes(), answer.getBytes().length, packet.getAddress(), packet.getPort());  //creates packet
+        server.sendPacket(packetsend); //sends packet
+
       }
-
-      InetAddress address = packet.getAddress();
-      System.out.println(address);
-      DatagramPacket packetsend = new DatagramPacket(answer.getBytes(), answer.getBytes().length, address, Integer.parseInt(port));
-      server.sendPacket(packetsend);
-      System.out.println(answer.getBytes());
-      //server.socket.close();
     }
   }
 
   public Server(String port){
     try{
       this.socket = new DatagramSocket(Integer.parseInt(port));
+      this.dataBase = new Hashtable<>();
     }catch(SocketException e){
       System.out.println("Error opening socket!\n");
     }
@@ -67,22 +66,32 @@ public class Server{
     }
   }
 
-  public String register(String cars, String plate, String owner){
-    if(cars.length() != 0)
-      cars += "%";
-    cars += plate + ";" + owner;
-    String[] carsArray = cars.split("%");
-    return "" + carsArray.length;
+  public String register(String plate, String owner){
+
+    System.out.println("PLATE: " + plate + "  " + "Owner:" + owner);
+
+      if(this.dataBase.get(plate) == null){  //checks if the plate already exists in dataBase
+        this.dataBase.put(plate,owner);
+        return Integer.toString(this.dataBase.size());          //return the size od the dataBase
+      }
+      else{
+        System.out.println("Already Registered!");
+        return "-1";
+      }
   }
 
-  public String lookup(String cars, String plate){
-    int idx = cars.indexOf(plate);
-    if(idx > -1){
-      int idx2 = cars.indexOf("%", idx);
-      String car = cars.substring(idx, idx2);
-      return car;
+  public String lookup(String plate){
+
+    System.out.println("PLATE: " + plate);
+
+    if(this.dataBase.get(plate) == null){  //checks if the plate already exists in dataBase
+      System.out.println("Owner not Found!");
+      return "NOT_FOUND";                   //returns not found if the plate does not exist in the dataBase
     }
-    return "-1";
+    else{
+      return this.dataBase.get(plate);          //return the owner
+    }
+
   }
 
 
