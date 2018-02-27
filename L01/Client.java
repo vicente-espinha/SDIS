@@ -31,6 +31,7 @@ public class Client{
       request = oper + ";" + plate;
     }else{
       System.out.println("Operation invalid !");
+      System.exit(-1);
     }
 
     //sending message
