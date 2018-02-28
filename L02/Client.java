@@ -11,7 +11,7 @@ public class Client{
   public static void main(String[] args)throws IOException{
 
     if (args.length != 5 && args.length != 4) {
-      System.out.println("Usage: java Client <hostname> <port> <operation> <operand>+");
+      System.out.println("Usage: java Client <mcast_addr> <mcast_port> <operation> <operand>*");
       return;
     }
     Client client = new Client();

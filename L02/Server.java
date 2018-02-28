@@ -16,6 +16,10 @@ public class Server{
       String port = args[0];
       String mcast_addr = args[1];
       String mcast_port = args[2];
+      InetAddress group = InetAddress.getByName(mcast_addr);
+      MulticastSocket ms = new MulticastSocket(mcast_port);
+      ms.joinGroup(group);
+      DatagramPacket adv = new DatagramPacket(port.getBytes(), port.length(), group, mcast_port);
       Server server = new Server(port);
       System.out.println("Opened server in port " + port);
 
@@ -40,6 +44,9 @@ public class Server{
         server.sendPacket(packetsend); //sends packet
 
       }
+    } else {
+      System.out.println("Usage: java Client <srvc_port> <mcast_addr> <mcast_port>");
+      return;
     }
   }
 
