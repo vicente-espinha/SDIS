@@ -7,6 +7,7 @@ import java.io.IOException;
 public class Client{
 
   private DatagramSocket socket;
+  private MulticastSocket multisocket;
 
   public static void main(String[] args)throws IOException{
 
@@ -14,15 +15,31 @@ public class Client{
       System.out.println("Usage: java Client <hostname> <port> <operation> <operand>+");
       return;
     }
-    Client client = new Client();
 
-    String mcast_addr = args[1];
-    String mcast_port = args[2];
+    String address = args[1];
+    InetAddress mcast_addr = InetAddress.getByName(address);
+    int mcast_port = Integer.parseInt(args[2]);
     String oper = args[2];
     String plate = args[3];
-    InetAddress address = InetAddress.getByName(host);
     String request = new String();
 
+
+    Client client = new Client(mcast_port);
+
+    //Multicast
+
+    client.multisocket.joinGroup(mcast_addr);
+
+    byte[] multibuf = new byte[512];
+    DatagramPacket recv = new DatagramPacket(multibuf,multibuf.length);
+    client.receivePacket(recv);
+
+    InetAddress db_address = recv.getAddress();
+    String db_port = new String(recv.getData());
+
+    client.multisocket.leaveGroup(mcast_addr);
+
+    //UniCast
 
     if(oper.equals("REGISTER")){
       String owner = args[4];
@@ -36,7 +53,7 @@ public class Client{
 
     //sending message
     byte[] sbuf = request.getBytes();
-    DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, address, Integer.parseInt(port));
+    DatagramPacket packet = new DatagramPacket(sbuf, sbuf.length, db_address, Integer.parseInt(db_port));
     client.sendPacket(packet);
 
     //get response
@@ -60,9 +77,10 @@ public class Client{
 
   }
 
-  public Client(){
+  public Client(int port) throws IOException{
     try{
       this.socket = new DatagramSocket();
+      this.multisocket = new MulticastSocket(port);
     }catch(SocketException e){
       System.out.println("Error opening socket!\n");
     }
