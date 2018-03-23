@@ -10,9 +10,7 @@ public class Peer implements MessageRMI {
     private InetAddress group;
     private MulticastSocket msocket;
 
-    public Peer(){}
-
-    private void init(String[] args) throws IOException {
+    public Peer(String[] args) throws IOException{
         try{
             this.group = InetAddress.getByName(args[3]);
             this.msocket = new MulticastSocket(4446);
@@ -20,21 +18,12 @@ public class Peer implements MessageRMI {
         }catch(SocketException e){
           System.out.println("Error opening socket!\n");
         }
-        if(args[0].equals("1")) msocket.joinGroup(group);
+        msocket.joinGroup(group);
+    }
 
-        try {
-            Peer obj = new Peer();
-            MessageRMI stub = (MessageRMI) UnicastRemoteObject.exportObject(obj, 0);
+    private void init(String[] args) throws IOException {
 
-            // Bind the remote object's stub in the registry
-            Registry registry = LocateRegistry.getRegistry();
-            registry.bind(args[1], stub);
 
-            System.out.println("Peer ready");
-        } catch (Exception e) {
-            System.err.println("Peer exception: " + e.toString());
-            e.printStackTrace();
-        }
 
         byte[] buf = new byte[1000];
         DatagramPacket recv = new DatagramPacket(buf, buf.length);
@@ -45,7 +34,7 @@ public class Peer implements MessageRMI {
     public String backup() throws IOException {
         String msg = "Backup a file";
         DatagramPacket backup = new DatagramPacket(msg.getBytes(), msg.length(),
-                            this.group, this.msocket.getPort());
+                            this.group, 4446);
         this.msocket.send(backup);
         return "Backed a file";
     }
@@ -72,7 +61,24 @@ public class Peer implements MessageRMI {
             return;
         }
         //Peer thisPeer = new Peer(args[3]);
-        Peer thisPeer = new Peer();
+        Peer thisPeer = new Peer(args);
+
+
+
+                try {
+
+                    MessageRMI stub = (MessageRMI) UnicastRemoteObject.exportObject(thisPeer, 0);
+
+                    // Bind the remote object's stub in the registry
+                    Registry registry = LocateRegistry.getRegistry();
+                    registry.bind(args[1], stub);
+
+                    System.out.println("Peer ready");
+                } catch (Exception e) {
+                    System.err.println("Peer exception: " + e.toString());
+                    e.printStackTrace();
+                }
+
         thisPeer.init(args);
 
     }
