@@ -1,4 +1,7 @@
 import java.io.File;
+import java.io.IOException;
+import java.security.*;
+import java.nio.charset.*;
 
 public class Message{
 
@@ -77,12 +80,19 @@ public class Message{
         return joined;
     }
 
-    public byte[] generateFileID(String fileName) {
+    public byte[] generateFileID(String fileName) throws IOException{
         File file = new File(fileName);
         String fileID = fileName + file.lastModified();
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hash = digest.digest(fileID.getBytes(StandardCharsets.UTF_8));
-        return hash;
+        
+        try{
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(fileID.getBytes(StandardCharsets.UTF_8));
+            return hash;
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("Error generating fileID");
+            throw new IOException();
+        }
     }
 
 }
