@@ -15,7 +15,7 @@ public class Client {
         try {
             Registry registry = LocateRegistry.getRegistry(null);
             MessageRMI stub = (MessageRMI) registry.lookup(args[0]);
-            String response = stub.backup();
+            String response = stub.backup(args[3]);
             System.out.println("response: " + response);
             response = stub.restore();
             System.out.println("response: " + response);

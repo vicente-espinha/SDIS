@@ -1,67 +1,88 @@
-
+import java.io.File;
 
 public class Message{
-    public enum MessageType {
-        PUTCHUNK, STORED, GETCHUNK, CHUNK, DELETE, REMOVED
-    }
-    private static final String CRLF = "\r\n";
+
+    static final String PUTCHUNK = "PUTCHUNK";
+    static final String STORED = "STORED";
+    static final String GETCHUNK = "GETCHUNK";
+    static final String CHUNK = "CHUNK";
+    static final String DELETE = "DELETE";
+    static final String REMOVED = "REMOVED";
+    static final String SPACE = " ";
+    static final String CRLF = "\r\n";
     
     String version;
     public Message(String version){
         this.version = version;
     }
 
-    public String generateBackupReq(String senderID, String fileName, FileChunk chunk){
+    public byte[] generateBackupReq(String senderID, FileChunk chunk){
+        String reqMsg = generateHeader(PUTCHUNK, senderID);
+        byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getFileID());
+
+        reqMsg = SPACE + chunk.getNumber() + SPACE + chunk.getRepDeg() + SPACE + CRLF + CRLF;
+        byte[] reqMsgArr1 = joinArrays(reqMsg.getBytes(), chunk.getBody());
+
+        return joinArrays(reqMsgArr, reqMsgArr1);
+    }
+
+    public String generateBackupAnswer(String senderID, FileChunk chunk){
         String reqMsg;
-        reqMsg = MessageType.PUTCHUNK + " " + generateHeader(senderID, fileName) 
-        + " " + chunk.getNumber() + " " + chunk.getRepDeg() + " " + CRLF + CRLF + chunk.getBody();
+        reqMsg = generateHeader(STORED, senderID) 
+        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
         return reqMsg;
     }
 
-    public String generateBackupAnswer(String senderID, String fileName, FileChunk chunk){
+    public String generateRestoreReq(String senderID, FileChunk chunk){
         String reqMsg;
-        reqMsg = MessageType.STORED + " " + generateHeader(senderID, fileName) 
-        + " " + chunk.getNumber() + " " + CRLF + CRLF;
+        reqMsg = generateHeader(GETCHUNK, senderID) 
+        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
         return reqMsg;
     }
 
-    public String generateRestoreReq(String senderID, String fileName, FileChunk chunk){
+    public String generateRestoreAnswer(String senderID, FileChunk chunk){
         String reqMsg;
-        reqMsg = MessageType.GETCHUNK + " " + generateHeader(senderID, fileName) 
-        + " " + chunk.getNumber() + " " + CRLF + CRLF;
+        reqMsg = generateHeader(CHUNK, senderID) 
+        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF + chunk.getBody();
         return reqMsg;
     }
 
-    public String generateRestoreAnswer(String senderID, String fileName, FileChunk chunk){
+    public String generateDeleteReq(String senderID, FileChunk chunk){
         String reqMsg;
-        reqMsg = MessageType.CHUNK + " " + generateHeader(senderID, fileName) 
-        + " " + chunk.getNumber() + " " + CRLF + CRLF + chunk.getBody();
+        reqMsg = generateHeader(DELETE, senderID) 
+        + SPACE + CRLF + CRLF;
         return reqMsg;
     }
 
-    public String generateDeleteReq(String senderID, String fileName, FileChunk chunk){
+    public String generateRemovedAnswer(String senderID, FileChunk chunk){
         String reqMsg;
-        reqMsg = MessageType.DELETE + " " + generateHeader(senderID, fileName) 
-        + " " + CRLF + CRLF;
+        reqMsg = generateHeader(REMOVED, senderID) 
+        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
         return reqMsg;
     }
 
-    public String generateRemovedAnswer(String senderID, String fileName, FileChunk chunk){
-        String reqMsg;
-        reqMsg = MessageType.DELETE + " " + generateHeader(senderID, fileName) 
-        + " " + chunk.getNumber() + " " + CRLF + CRLF;
-        return reqMsg;
-    }
-
-    private String generateHeader(String senderID, String fileName){
+    public String generateHeader(String type, String senderID){
         String header;
-        header = this.version + " " + senderID + " " + generateFileID(fileName);
+        header = type + SPACE + this.version + SPACE + senderID + SPACE;
         return header;
     }
 
-    private String generateFileID(String fileName) {
-        //TODO encryption SHA256 for fileID
-        return fileName;
+    public byte[] joinArrays(byte[] array1, byte[] array2){
+        
+        byte[] joined = new byte[array1.length + array2.length];
+
+        System.arraycopy(array1, 0, joined, 0, array1.length);
+        System.arraycopy(array2, 0, joined, array1.length, array2.length);
+
+        return joined;
+    }
+
+    public byte[] generateFileID(String fileName) {
+        File file = new File(fileName);
+        String fileID = fileName + file.lastModified();
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(fileID.getBytes(StandardCharsets.UTF_8));
+        return hash;
     }
 
 }

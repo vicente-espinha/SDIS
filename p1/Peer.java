@@ -19,10 +19,11 @@ public class Peer implements MessageRMI {
         this.mc.receiveMessage();
     }
 
-    public String backup() throws IOException {
+    public String backup(String filename) throws IOException {
 
-        String msg = "Backup a file";
-        this.mc.sendMessage(msg);
+        //String msg = "Backup a file";
+        this.mdb.sendMessage(filename);
+        //this.mc.sendMessage(msg);
         return "Backed a file";
     }
 
