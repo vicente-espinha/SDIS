@@ -7,11 +7,17 @@ import java.lang.String;
 import java.io.*;
 
 public class Peer implements MessageRMI {
-    private MC mc; 
+    private MC mc;
+    private MDB mdb;
+    private MDR mdr;
 
     public Peer(String[] args) throws IOException{
         
        this.mc = new MC(args[3], args[4]);
+       //here will initiate the mdr and the mdb
+       //this.mdb = new MDB(addr,port);
+       //this.mdr = new MDR(addr,port);       
+       
     }
 
     public void getMessage() throws IOException {
@@ -22,8 +28,12 @@ public class Peer implements MessageRMI {
     public String backup(String filename) throws IOException {
 
         //String msg = "Backup a file";
-        this.mdb.sendMessage(filename);
         //this.mc.sendMessage(msg);
+        //String msg = "Backup a file";
+        //this.mc.sendMessage(msg);
+        
+        this.mdb.sendMessage(filename);
+        //here sends to the mdb  
         return "Backed a file";
     }
 
@@ -31,6 +41,7 @@ public class Peer implements MessageRMI {
 
         String msg = "Restored a file";
         this.mc.sendMessage(msg);
+        //here sends with the mdr
         return "Restore a file";
     }
 
