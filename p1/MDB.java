@@ -3,6 +3,7 @@ import java.net.*;
 import java.io.*;
 import java.util.Arrays;
 import java.nio.charset.*;
+import java.util.Random;
 
 /*
 
@@ -48,7 +49,7 @@ public class MDB implements Runnable {
                     byte[] buffer2 = Arrays.copyOf(buffer, nRead);
                     chunk = new FileChunk(fileID, chunkNumber, buffer2, 1); //TODO change RepDegree
                 }
-                
+
                 byte[] msgArr = msg.generateBackupReq(this.peerID, chunk);
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
                 this.msocket.send(message);
@@ -70,7 +71,8 @@ public class MDB implements Runnable {
         return;
     }
 
-    public void receiveMessage() throws IOException {
+    @Override
+    public void run() {
         while (true) {
 
             try {
@@ -105,11 +107,12 @@ public class MDB implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
 
-    @Override
-    public void run() {
+            //new thread here to process the received message (random between 0 and 400ms)
+            Random rand = new Random();
+            int randomNum = rand.nextInt(400);
+            //execute.schedule(classe que processa,randomNum,TimeOut.MILLISECONDS);
+        }
 
     }
 }

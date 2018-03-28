@@ -5,12 +5,15 @@ import java.rmi.server.UnicastRemoteObject;
 import java.net.*;
 import java.lang.String;
 import java.io.*;
+import java.util.concurrent.*;
+import java.util.Random;
 
 public class Peer implements MessageRMI {
     private String peerID;
     private MC mc;
     private MDB mdb;
     private MDR mdr;
+    public static ScheduledThreadPoolExecutor executer;
 
     public Peer(String[] args) throws IOException{
         
@@ -18,13 +21,17 @@ public class Peer implements MessageRMI {
         this.mc = new MC(args[3], args[4]);
         //here will initiate the mdr and the mdb
         this.mdb = new MDB(this.peerID, args[5], args[6]);
-        //this.mdr = new MDR(addr,port);       
+        //this.mdr = new MDR(addr,port);
+
+        executer = ( ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(15);       
        
     }
 
     public void getMessage() throws IOException {
 
-        this.mdb.receiveMessage();
+        executer.execute(this.mc);
+        executer.execute(this.mdb);
+        executer.execute(this.mdr);
     }
 
     public String backup(String filename) throws IOException {
