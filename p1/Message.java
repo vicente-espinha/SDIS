@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.IOException;
 import java.security.*;
 import java.nio.charset.*;
-import java.util.Base64;
 
 public class Message {
 
@@ -22,42 +21,50 @@ public class Message {
     }
 
     public byte[] generateBackupReq(String senderID, FileChunk chunk) {
-        String reqMsg = generateHeader(PUTCHUNK, senderID) + chunk.getFileID() 
-        + SPACE + chunk.getNumber() + SPACE + chunk.getRepDeg() + SPACE + CRLF + CRLF;
+        String reqMsg = generateHeader(PUTCHUNK, senderID) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE
+                + chunk.getRepDeg() + SPACE + CRLF + CRLF;
 
         byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getBody());
 
         return reqMsgArr;
     }
 
-    public String generateBackupAnswer(String senderID, FileChunk chunk) {
-        String reqMsg;
-        reqMsg = generateHeader(STORED, senderID) + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
-        return reqMsg;
+    public byte[] generateBackupAnswer(String senderID, FileChunk chunk) {
+
+        String reqMsg = generateHeader(STORED, senderID) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE + CRLF
+                + CRLF;
+
+        return reqMsg.getBytes();
     }
 
-    public String generateRestoreReq(String senderID, FileChunk chunk) {
-        String reqMsg;
-        reqMsg = generateHeader(GETCHUNK, senderID) + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
-        return reqMsg;
+    public byte[] generateRestoreReq(String senderID, FileChunk chunk) {
+
+        String reqMsg = generateHeader(GETCHUNK, senderID) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE
+                + CRLF + CRLF;
+
+        return reqMsg.getBytes();
     }
 
-    public String generateRestoreAnswer(String senderID, FileChunk chunk) {
-        String reqMsg;
-        reqMsg = generateHeader(CHUNK, senderID) + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF + chunk.getBody();
-        return reqMsg;
+    public byte[] generateRestoreAnswer(String senderID, FileChunk chunk) {
+
+        String reqMsg = generateHeader(CHUNK, senderID) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE
+                + chunk.getRepDeg() + SPACE + CRLF + CRLF;
+        byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getBody());
+
+        return reqMsgArr;
     }
 
-    public String generateDeleteReq(String senderID, FileChunk chunk) {
-        String reqMsg;
-        reqMsg = generateHeader(DELETE, senderID) + SPACE + CRLF + CRLF;
-        return reqMsg;
+    public byte[] generateDeleteReq(String senderID, FileChunk chunk) {
+
+        String reqMsg = generateHeader(DELETE, senderID) + chunk.getFileID() + SPACE + CRLF + CRLF;
+        return reqMsg.getBytes();
     }
 
-    public String generateRemovedAnswer(String senderID, FileChunk chunk) {
-        String reqMsg;
-        reqMsg = generateHeader(REMOVED, senderID) + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
-        return reqMsg;
+    public byte[] generateRemovedAnswer(String senderID, FileChunk chunk) {
+
+        String reqMsg = generateHeader(DELETE, senderID) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE + CRLF
+                + CRLF;
+        return reqMsg.getBytes();
     }
 
     public String generateHeader(String type, String senderID) {
@@ -83,9 +90,17 @@ public class Message {
         try {
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(fileIDtemp.getBytes(StandardCharsets.UTF_8));
-            String fileID = Base64.getEncoder().encodeToString(hash);
-            return fileID;
+            byte[] hash = digest.digest(fileIDtemp.getBytes("UTF-8"));
+            StringBuffer fileID = new StringBuffer();
+
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+                if (hex.length() == 1)
+                    fileID.append('0');
+                fileID.append(hex);
+            }
+
+            return fileID.toString();
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Error generating fileID");
             throw new IOException();
