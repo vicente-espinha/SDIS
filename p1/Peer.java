@@ -7,16 +7,18 @@ import java.lang.String;
 import java.io.*;
 
 public class Peer implements MessageRMI {
+    private String peerID;
     private MC mc;
     private MDB mdb;
     private MDR mdr;
 
     public Peer(String[] args) throws IOException{
         
-       this.mc = new MC(args[3], args[4]);
-       //here will initiate the mdr and the mdb
-       //this.mdb = new MDB(addr,port);
-       //this.mdr = new MDR(addr,port);       
+        this.peerID = args[0];
+        this.mc = new MC(args[3], args[4]);
+        //here will initiate the mdr and the mdb
+        this.mdb = new MDB(this.peerID, args[5], args[6]);
+        //this.mdr = new MDR(addr,port);       
        
     }
 
@@ -65,7 +67,7 @@ public class Peer implements MessageRMI {
     }
 
     public static void main(String args[]) throws IOException{
-        if( args.length != 5) {
+        if( args.length != 7) {
             System.out.println("Number of arguments not correct..");
             return;
         }

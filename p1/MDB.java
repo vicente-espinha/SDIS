@@ -42,11 +42,13 @@ public class MDB implements Runnable{
             while((nRead = inputStream.read(buffer))!= -1){
     
                 chunk = new FileChunk(fileID, chunkNumber, buffer, 1); //change RepDegree
+                System.out.println("chunk");
+                System.out.println(chunk.getBody());
                 byte[] msgArr = msg.generateBackupReq(this.peerID, chunk);
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
                 this.msocket.send(message);
                 
-    
+                buffer = new byte[64000];
                 chunkNumber++;
             }
     
