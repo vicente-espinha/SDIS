@@ -14,7 +14,7 @@ public class Peer implements MessageRMI {
 
     public Peer(String[] args) throws IOException{
         
-        this.peerID = args[0];
+        this.peerID = args[1];
         this.mc = new MC(args[3], args[4]);
         //here will initiate the mdr and the mdb
         this.mdb = new MDB(this.peerID, args[5], args[6]);
@@ -24,7 +24,7 @@ public class Peer implements MessageRMI {
 
     public void getMessage() throws IOException {
 
-        this.mc.receiveMessage();
+        this.mdb.receiveMessage();
     }
 
     public String backup(String filename) throws IOException {

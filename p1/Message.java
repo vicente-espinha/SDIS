@@ -2,8 +2,9 @@ import java.io.File;
 import java.io.IOException;
 import java.security.*;
 import java.nio.charset.*;
+import java.util.Base64;
 
-public class Message{
+public class Message {
 
     static final String PUTCHUNK = "PUTCHUNK";
     static final String STORED = "STORED";
@@ -13,65 +14,60 @@ public class Message{
     static final String REMOVED = "REMOVED";
     static final String SPACE = " ";
     static final String CRLF = "\r\n";
-    
+
     String version;
-    public Message(String version){
+
+    public Message(String version) {
         this.version = version;
     }
 
-    public byte[] generateBackupReq(String senderID, FileChunk chunk){
-        String reqMsg = generateHeader(PUTCHUNK, senderID);
-        byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getFileID());
+    public byte[] generateBackupReq(String senderID, FileChunk chunk) {
+        String reqMsg = generateHeader(PUTCHUNK, senderID) + chunk.getFileID() 
+        + SPACE + chunk.getNumber() + SPACE + chunk.getRepDeg() + SPACE + CRLF + CRLF;
 
-        reqMsg = SPACE + chunk.getNumber() + SPACE + chunk.getRepDeg() + SPACE + CRLF + CRLF;
-        byte[] reqMsgArr1 = joinArrays(reqMsg.getBytes(), chunk.getBody());
+        byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getBody());
 
-        return joinArrays(reqMsgArr, reqMsgArr1);
+        return reqMsgArr;
     }
 
-    public String generateBackupAnswer(String senderID, FileChunk chunk){
+    public String generateBackupAnswer(String senderID, FileChunk chunk) {
         String reqMsg;
-        reqMsg = generateHeader(STORED, senderID) 
-        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
+        reqMsg = generateHeader(STORED, senderID) + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
         return reqMsg;
     }
 
-    public String generateRestoreReq(String senderID, FileChunk chunk){
+    public String generateRestoreReq(String senderID, FileChunk chunk) {
         String reqMsg;
-        reqMsg = generateHeader(GETCHUNK, senderID) 
-        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
+        reqMsg = generateHeader(GETCHUNK, senderID) + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
         return reqMsg;
     }
 
-    public String generateRestoreAnswer(String senderID, FileChunk chunk){
+    public String generateRestoreAnswer(String senderID, FileChunk chunk) {
         String reqMsg;
-        reqMsg = generateHeader(CHUNK, senderID) 
-        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF + chunk.getBody();
+        reqMsg = generateHeader(CHUNK, senderID) + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF + chunk.getBody();
         return reqMsg;
     }
 
-    public String generateDeleteReq(String senderID, FileChunk chunk){
+    public String generateDeleteReq(String senderID, FileChunk chunk) {
         String reqMsg;
-        reqMsg = generateHeader(DELETE, senderID) 
-        + SPACE + CRLF + CRLF;
+        reqMsg = generateHeader(DELETE, senderID) + SPACE + CRLF + CRLF;
         return reqMsg;
     }
 
-    public String generateRemovedAnswer(String senderID, FileChunk chunk){
+    public String generateRemovedAnswer(String senderID, FileChunk chunk) {
         String reqMsg;
-        reqMsg = generateHeader(REMOVED, senderID) 
-        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
+        reqMsg = generateHeader(REMOVED, senderID) + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
         return reqMsg;
     }
 
-    public String generateHeader(String type, String senderID){
+    public String generateHeader(String type, String senderID) {
         String header;
         header = type + SPACE + this.version + SPACE + senderID + SPACE;
         return header;
     }
 
-    public byte[] joinArrays(byte[] array1, byte[] array2){
-        
+    public byte[] joinArrays(byte[] array1, byte[] array2) {
+
         byte[] joined = new byte[array1.length + array2.length];
 
         System.arraycopy(array1, 0, joined, 0, array1.length);
@@ -80,15 +76,16 @@ public class Message{
         return joined;
     }
 
-    public byte[] generateFileID(String fileName) throws IOException{
+    public String generateFileID(String fileName) throws IOException {
         File file = new File(fileName);
-        String fileID = fileName + file.lastModified();
-        
-        try{
+        String fileIDtemp = fileName + file.lastModified();
+
+        try {
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(fileID.getBytes(StandardCharsets.UTF_8));
-            return hash;
+            byte[] hash = digest.digest(fileIDtemp.getBytes(StandardCharsets.UTF_8));
+            String fileID = Base64.getEncoder().encodeToString(hash);
+            return fileID;
         } catch (NoSuchAlgorithmException e) {
             System.out.println("Error generating fileID");
             throw new IOException();

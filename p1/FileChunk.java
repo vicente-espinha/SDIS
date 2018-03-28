@@ -2,12 +2,12 @@
 
 public class FileChunk{
     
-    byte[] fileID;
+    String fileID;
     int chunkNumber;
     byte[] body;
     int repDegree;
 
-    public FileChunk(byte[] fileID, int chunkNumber, byte[] body, int repDegree){
+    public FileChunk(String fileID, int chunkNumber, byte[] body, int repDegree){
         this.fileID = fileID;
         this.chunkNumber = chunkNumber;
         this.body = body;
@@ -22,7 +22,7 @@ public class FileChunk{
         return this.chunkNumber;
     }
 
-    public byte[] getFileID(){
+    public String getFileID(){
         return this.fileID;
     }
 
