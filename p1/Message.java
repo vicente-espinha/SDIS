@@ -20,6 +20,7 @@ public class Message{
     }
 
     public byte[] generateBackupReq(String senderID, FileChunk chunk){
+
         String reqMsg = generateHeader(PUTCHUNK, senderID);
         byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getFileID());
 
@@ -29,39 +30,55 @@ public class Message{
         return joinArrays(reqMsgArr, reqMsgArr1);
     }
 
-    public String generateBackupAnswer(String senderID, FileChunk chunk){
-        String reqMsg;
-        reqMsg = generateHeader(STORED, senderID) 
-        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
-        return reqMsg;
+    public byte[] generateBackupAnswer(String senderID, FileChunk chunk){
+
+        String reqMsg = generateHeader(STORED, senderID); 
+        byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getFileID());
+
+        reqMsg = SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
+        
+        return joinArrays(reqMsgArr, reqMsg.getBytes());
     }
 
-    public String generateRestoreReq(String senderID, FileChunk chunk){
-        String reqMsg;
-        reqMsg = generateHeader(GETCHUNK, senderID) 
-        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
-        return reqMsg;
+    public byte[] generateRestoreReq(String senderID, FileChunk chunk){
+
+        String reqMsg = generateHeader(GETCHUNK, senderID);
+        byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getFileID());
+
+
+        reqMsg = SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
+
+        return joinArrays(reqMsgArr, reqMsg.getBytes());
     }
 
-    public String generateRestoreAnswer(String senderID, FileChunk chunk){
-        String reqMsg;
-        reqMsg = generateHeader(CHUNK, senderID) 
-        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF + chunk.getBody();
-        return reqMsg;
+    public byte[] generateRestoreAnswer(String senderID, FileChunk chunk){
+
+        String reqMsg = generateHeader(CHUNK, senderID);
+        byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getFileID());
+
+
+        reqMsg = SPACE + chunk.getNumber() + SPACE + chunk.getRepDeg() + SPACE + CRLF + CRLF;
+        byte[] reqMsgArr1 = joinArrays(reqMsg.getBytes(), chunk.getBody());
+
+        return joinArrays(reqMsgArr, reqMsgArr1);
     }
 
-    public String generateDeleteReq(String senderID, FileChunk chunk){
-        String reqMsg;
-        reqMsg = generateHeader(DELETE, senderID) 
-        + SPACE + CRLF + CRLF;
-        return reqMsg;
+    public byte[] generateDeleteReq(String senderID, FileChunk chunk){
+        
+        String reqMsg = generateHeader(DELETE, senderID);
+        byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getFileID());
+
+        reqMsg = SPACE + CRLF + CRLF;
+        return joinArrays(reqMsgArr, reqMsg.getBytes());
     }
 
-    public String generateRemovedAnswer(String senderID, FileChunk chunk){
-        String reqMsg;
-        reqMsg = generateHeader(REMOVED, senderID) 
-        + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
-        return reqMsg;
+    public byte[] generateRemovedAnswer(String senderID, FileChunk chunk){
+        
+        String reqMsg = generateHeader(DELETE, senderID);
+        byte[] reqMsgArr = joinArrays(reqMsg.getBytes(), chunk.getFileID());
+
+        reqMsg = SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
+        return joinArrays(reqMsgArr, reqMsg.getBytes());
     }
 
     public String generateHeader(String type, String senderID){
