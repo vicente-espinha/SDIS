@@ -42,7 +42,7 @@ public class MC implements Runnable {
     @Override
     public void run() {
         while (true) {
-
+            System.out.println(this.peerID + " aaaa");
             try {
                 byte[] buf = new byte[1000];
 
@@ -71,8 +71,8 @@ public class MC implements Runnable {
             }
 
             //new thread here to process the received message
-            Random rand = new Random();
-            int randomNum = rand.nextInt(400);
+            //Random rand = new Random();
+            //int randomNum = rand.nextInt(400);
             //execute.schedule(classe que processa,randomNum,TimeOut.MILLISECONDS);
         }
     }
