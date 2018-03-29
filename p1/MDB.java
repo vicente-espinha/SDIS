@@ -32,7 +32,7 @@ public class MDB implements Runnable {
 
     }
 
-    public void sendMessage(String fileName) throws IOException {
+    public void sendMessage(String fileName, String repDegree) throws IOException {
         try {
             byte[] buffer = new byte[64000];
             FileInputStream inputStream = new FileInputStream(fileName);

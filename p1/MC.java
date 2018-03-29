@@ -42,8 +42,8 @@ public class MC implements Runnable {
     public void run() {
         while (true) {
 
-            byte[] buf = new byte[1000];
             try {
+                byte[] buf = new byte[1000];
 
                 DatagramPacket recv = new DatagramPacket(buf, buf.length);
                 this.msocket.receive(recv);
@@ -60,8 +60,8 @@ public class MC implements Runnable {
                         System.out.println("Nay");
                         break;
                 }
+                buf = new byte[1000];
                 
-                System.out.println(headerArr[2] + " " + headerArr[3]);
             } catch (SocketException e) {
                 System.out.println("Error receiving packet");
             }catch(IOException e){

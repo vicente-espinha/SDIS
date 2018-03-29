@@ -3,9 +3,9 @@ import java.rmi.RemoteException;
 import java.io.IOException;
 
 public interface MessageRMI extends Remote {
-    String backup(String filename) throws RemoteException, IOException;
-    String restore() throws RemoteException, IOException;
-    String delete() throws RemoteException, IOException;
-    String manage() throws RemoteException, IOException;
-    String retrieve() throws RemoteException, IOException;
+    void backup(String filename, String repDegree) throws RemoteException, IOException;
+    void restore(String filename) throws RemoteException, IOException;
+    void delete(String filename) throws RemoteException, IOException;
+    void reclaim(String storage) throws RemoteException, IOException;
+    String state() throws RemoteException, IOException;
 }

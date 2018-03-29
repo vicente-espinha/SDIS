@@ -34,40 +34,40 @@ public class Peer implements MessageRMI {
         //executer.execute(this.mdr);
     }
 
-    public String backup(String filename) throws IOException {
+    public void backup(String filename, String repDegree) throws IOException {
 
         //String msg = "Backup a file";
         //this.mc.sendMessage(msg);
         //String msg = "Backup a file";
         //this.mc.sendMessage(msg);
         
-        mdb.sendMessage(filename);
+        mdb.sendMessage(filename, repDegree);
         //here sends to the mdb  
-        return "Backed a file";
+        return;
     }
 
-    public String restore() throws IOException {
+    public void restore(String filename) throws IOException {
 
         //String msg = "Restored a file";
         //mc.sendMessage(msg);
         //here sends with the mdr
-        return "Restore a file";
+        return;
     }
 
-    public String delete() throws IOException {
+    public void delete(String filename) throws IOException {
 
         String msg = "Deleted a file";
         //mc.sendMessage(msg);
-        return "Delete a file";
+        return;
     }
 
-    public String manage() throws IOException {
+    public void reclaim(String storage) throws IOException {
         String msg = "Managed a file";
         //mc.sendMessage(msg);
-        return "Manage a file";
+        return;
     }
 
-    public String retrieve() throws IOException {
+    public String state() throws IOException {
         String msg = "Retrieved a file";
         //mc.sendMessage(msg);
         return "Retrieve a file";
