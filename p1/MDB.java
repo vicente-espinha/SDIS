@@ -1,7 +1,9 @@
 import java.io.IOException;
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.nio.charset.*;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -42,22 +44,28 @@ public class MDB implements Runnable {
             int chunkNumber = 1;
             String fileID = msg.generateFileID(fileName);
             int nRead = 0;
+            ArrayList<FileChunk>temphash = new ArrayList();
 
             while ((nRead = inputStream.read(buffer)) != -1) {
                 if (nRead == 64000) {
-                    chunk = new FileChunk(fileID, chunkNumber, buffer, 1); //TODO change RepDegree
+                    chunk = new FileChunk(fileID, chunkNumber, buffer, repDegree); //TODO change RepDegree
                 } else {
                     byte[] buffer2 = Arrays.copyOf(buffer, nRead);
-                    chunk = new FileChunk(fileID, chunkNumber, buffer2, 1); //TODO change RepDegree
-                }
+                    chunk = new FileChunk(fileID, chunkNumber, buffer2, repDegree); //TODO change RepDegree
+                }  
+                temphash.add(chunk);
 
-                byte[] msgArr = msg.generateBackupReq(this.peerID, chunk);
+                buffer = new byte[64000];
+                chunkNumber++;
+            }   
+
+            //send all chunks of file
+            for(FileChunk key : temphash){
+                byte[] msgArr = msg.generateBackupReq(this.peerID, key);
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
                 this.msocket.send(message);
                 Peer.getDataPeerInitializerVector()
-                        .add(new DataPeerInitializer(new File(fileName).getAbsolutePath(), chunk.getFileID(), 1));//TODO change RepDegree
-                buffer = new byte[64000];
-                chunkNumber++;
+                        .add(new DataPeerInitializer(new File(fileName).getAbsolutePath(), chunk.getFileID(), repDegree));//TODO change RepDegree
             }
 
             inputStream.close();
@@ -113,7 +121,7 @@ public class MDB implements Runnable {
                 if (!exists) {
                     chunk.save(headerArr[2]);
                     Peer.getDataStoreInitializerVector()
-                            .add(new DataStoreInitializer(chunk.getFileID(), chunk.getBody().length, 1));//TODO change RepDegree
+                            .add(new DataStoreInitializer(chunk.getFileID(), chunk.getBody().length, chunk.getRepDeg()));//TODO change RepDegree
 
                 }
 
