@@ -112,7 +112,11 @@ public class MDB implements Runnable {
                 }
 
                 if (this.peerID.equals(headerArr[2])) {
+                    System.out.println(this.peerID);
                     continue;
+                }
+                else{
+                    System.out.println("aaaaa" + this.peerID);
                 }
 
                 //check if chunk already eists in this peer
