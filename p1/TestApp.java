@@ -7,7 +7,7 @@ public class TestApp {
     }
 
     public static void main(String[] args) {
-        if (args.length >= 2 && args.length <= 4) {
+        if (args.length < 2 && args.length > 4) {
             System.out.println("Number of arguments not correct. It should be invoked as: \n"
                     + "$ java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2> \n"
                     + "Note: <opnd_2> is only appliable to the backup protocol!");

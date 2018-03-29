@@ -7,6 +7,7 @@ import java.lang.String;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.Hashtable;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Vector;
 
@@ -18,6 +19,7 @@ public class Peer implements MessageRMI {
     public static ScheduledThreadPoolExecutor executer;
     public static Vector<DataStoreInitializer> dataStoredHash;
     public static Vector<DataPeerInitializer> dataPeerHash;
+    public static Hashtable<String,ArrayList<String>> storeCounter;
 
     public Peer(String[] args) throws IOException{
         
@@ -30,7 +32,7 @@ public class Peer implements MessageRMI {
         executer = ( ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(15);   
         dataStoredHash = new Vector<DataStoreInitializer>(); 
         dataPeerHash = new Vector<DataPeerInitializer>();
-       
+        storeCounter = new Hashtable<String,ArrayList<String>>();
     }
 
     public void getMessage() throws IOException {

@@ -44,28 +44,29 @@ public class MDB implements Runnable {
             int chunkNumber = 1;
             String fileID = msg.generateFileID(fileName);
             int nRead = 0;
-            ArrayList<FileChunk>temphash = new ArrayList();
+            ArrayList<FileChunk> temphash = new ArrayList<FileChunk>();
 
             while ((nRead = inputStream.read(buffer)) != -1) {
                 if (nRead == 64000) {
-                    chunk = new FileChunk(fileID, chunkNumber, buffer, repDegree); //TODO change RepDegree
+                    chunk = new FileChunk(fileID, chunkNumber, buffer, Integer.parseInt(repDegree));
                 } else {
                     byte[] buffer2 = Arrays.copyOf(buffer, nRead);
-                    chunk = new FileChunk(fileID, chunkNumber, buffer2, repDegree); //TODO change RepDegree
-                }  
+                    chunk = new FileChunk(fileID, chunkNumber, buffer2, Integer.parseInt(repDegree));
+                }
                 temphash.add(chunk);
+                Peer.storeCounter.put(fileID+chunkNumber, new ArrayList<String>());
 
                 buffer = new byte[64000];
                 chunkNumber++;
-            }   
+            }
 
             //send all chunks of file
-            for(FileChunk key : temphash){
+            for (FileChunk key : temphash) {
                 byte[] msgArr = msg.generateBackupReq(this.peerID, key);
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
                 this.msocket.send(message);
-                Peer.getDataPeerInitializerVector()
-                        .add(new DataPeerInitializer(new File(fileName).getAbsolutePath(), chunk.getFileID(), repDegree));//TODO change RepDegree
+                Peer.getDataPeerInitializerVector().add(new DataPeerInitializer(new File(fileName).getAbsolutePath(),
+                        key.getFileID(), Integer.parseInt(repDegree)));
             }
 
             inputStream.close();
@@ -115,13 +116,13 @@ public class MDB implements Runnable {
                 }
 
                 FileChunk chunk = new FileChunk(headerArr[3], Integer.parseInt(headerArr[4]), body,
-                            Integer.parseInt(headerArr[5]));
+                        Integer.parseInt(headerArr[5]));
 
                 //saves the chunk
                 if (!exists) {
                     chunk.save(headerArr[2]);
-                    Peer.getDataStoreInitializerVector()
-                            .add(new DataStoreInitializer(chunk.getFileID(), chunk.getBody().length, chunk.getRepDeg()));//TODO change RepDegree
+                    Peer.getDataStoreInitializerVector().add(
+                            new DataStoreInitializer(chunk.getFileID(), chunk.getBody().length, chunk.getRepDeg()));
 
                 }
 

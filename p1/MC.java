@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.*;
 import java.util.Random;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MC implements Runnable {
@@ -54,6 +55,7 @@ public class MC implements Runnable {
                 String[] headerArr = headerStr.split("(\\s)+"); //cleans the spaces and divides header into the parameters
                 switch(headerArr[0]){
                     case Message.STORED:
+                        saveStored(headerArr);
                         System.out.println("Yay");
                         break;
                     default:
@@ -73,5 +75,15 @@ public class MC implements Runnable {
             int randomNum = rand.nextInt(400);
             //execute.schedule(classe que processa,randomNum,TimeOut.MILLISECONDS);
         }
+    }
+
+    private void saveStored(String[] header){
+        ArrayList<String> peers = Peer.storeCounter.get(header[3] + header[4]);
+        if(!peers.contains(header[2])){
+            peers.add(header[2]);
+            Peer.storeCounter.remove(header[3]+ header[4]);
+            Peer.storeCounter.put(header[3]+header[4], peers);
+            System.out.println("yahedhadoawd");
+        } 
     }
 }
