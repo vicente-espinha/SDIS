@@ -53,7 +53,7 @@ public class MDB implements Runnable {
                 byte[] msgArr = msg.generateBackupReq(this.peerID, chunk);
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
                 this.msocket.send(message);
-
+                Peer.getDataPeerInitializerVector().add(new DataPeerInitializer(new File(fileName).getAbsolutePath(),chunk.getFileID(),1));//TODO change RepDegree
                 buffer = new byte[64000];
                 chunkNumber++;
             }
@@ -100,6 +100,7 @@ public class MDB implements Runnable {
                 FileChunk chunk = new FileChunk(headerArr[3], Integer.parseInt(headerArr[4]), body,
                         Integer.parseInt(headerArr[5]));
                 chunk.save(headerArr[2]);
+                Peer.getDataStoreInitializerVector().add(new DataStoreInitializer(chunk.getFileID(),chunk.getBody().length,1));//TODO change RepDegree
                 MCStored mcstored = new MCStored(chunk);
                 Peer.executer.execute(mcstored);
             } catch (FileNotFoundException e) {

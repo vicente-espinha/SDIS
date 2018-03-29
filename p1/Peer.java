@@ -6,7 +6,9 @@ import java.net.*;
 import java.lang.String;
 import java.io.*;
 import java.util.concurrent.*;
+import java.util.Hashtable;
 import java.util.Random;
+import java.util.Vector;
 
 public class Peer implements MessageRMI {
     private String peerID;
@@ -14,6 +16,8 @@ public class Peer implements MessageRMI {
     public static MDB mdb;
     private MDR mdr;
     public static ScheduledThreadPoolExecutor executer;
+    public static Vector<DataStoreInitializer> hash;
+    public static Vector<DataPeerInitializer> hash2;
 
     public Peer(String[] args) throws IOException{
         
@@ -23,7 +27,9 @@ public class Peer implements MessageRMI {
         mdb = new MDB(this.peerID, args[5], args[6]);
         //this.mdr = new MDR(addr,port);
 
-        executer = ( ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(15);       
+        executer = ( ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(15);   
+        hash = new Vector<DataStoreInitializer>(); 
+        hash2 = new Vector<DataPeerInitializer>();
        
     }
 
@@ -97,6 +103,14 @@ public class Peer implements MessageRMI {
 
         thisPeer.getMessage();
 
+    }
+
+    public static  Vector<DataStoreInitializer> getDataStoreInitializerVector(){
+        return hash;
+    }
+
+    public static  Vector<DataPeerInitializer> getDataPeerInitializerVector(){
+        return hash2;
     }
 
     public static MC getMC(){
