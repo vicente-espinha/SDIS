@@ -100,7 +100,8 @@ public class MDB implements Runnable {
                 FileChunk chunk = new FileChunk(headerArr[3], Integer.parseInt(headerArr[4]), body,
                         Integer.parseInt(headerArr[5]));
                 chunk.save(headerArr[2]);
-
+                MCStored mcstored = new MCStored(chunk);
+                Peer.executer.execute(mcstored);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
 

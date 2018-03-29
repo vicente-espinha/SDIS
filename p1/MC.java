@@ -2,15 +2,18 @@ import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.*;
 import java.util.Random;
+import java.util.Arrays;
 
 public class MC implements Runnable {
     InetAddress group;
     int port;
     MulticastSocket msocket;
+    String peerID;
 
-    public MC(String address, String port) throws IOException {
+    public MC(String address, String port, String peerID) throws IOException {
 
         try {
+            this.peerID = peerID;
             this.group = InetAddress.getByName(address);
             this.port = Integer.parseInt(port);
             this.msocket = new MulticastSocket(this.port);
@@ -44,8 +47,21 @@ public class MC implements Runnable {
 
                 DatagramPacket recv = new DatagramPacket(buf, buf.length);
                 this.msocket.receive(recv);
-                String msg = new String(recv.getData());
-                System.out.println(msg);
+
+                byte[] header = Arrays.copyOf(buf, recv.getLength());
+                String headerStr = new String(header);
+                
+                String[] headerArr = headerStr.split("(\\s)+"); //cleans the spaces and divides header into the parameters
+                switch(headerArr[0]){
+                    case Message.STORED:
+                        System.out.println("Yay");
+                        break;
+                    default:
+                        System.out.println("Nay");
+                        break;
+                }
+                
+                System.out.println(headerArr[2] + " " + headerArr[3]);
             } catch (SocketException e) {
                 System.out.println("Error receiving packet");
             }catch(IOException e){

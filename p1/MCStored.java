@@ -6,9 +6,11 @@ import java.util.Random;
 public class MCStored implements Runnable {
 
     MC mc;
+    FileChunk chunk;
 
-    public MCStored(MC mc)  {
-        this.mc = mc;
+    public MCStored(FileChunk chunk)  {
+        this.mc = Peer.getMC();
+        this.chunk = chunk;
     }
 
     /**
@@ -17,12 +19,13 @@ public class MCStored implements Runnable {
     @Override 
     public void run() {  //TODO Change this method
         try {
-            String msg = " "; //temp cuz error in msg.
-            DatagramPacket message = new DatagramPacket(msg.getBytes(), msg.length(), this.mc.group, this.mc.port);
+            Message msg = new Message("1.0");
+            byte[] answer = msg.generateBackupAnswer(this.mc.peerID, this.chunk);
+            DatagramPacket message = new DatagramPacket(answer, answer.length, this.mc.group, this.mc.port);
             this.mc.msocket.send(message);
-            System.out.println("Message sent: " + msg);
         } catch (SocketException e) {
             System.out.println("Error sending packet");
+            e.printStackTrace();
         }catch (IOException e){
             e.printStackTrace();
         }

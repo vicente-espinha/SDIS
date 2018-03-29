@@ -10,17 +10,17 @@ import java.util.Random;
 
 public class Peer implements MessageRMI {
     private String peerID;
-    private MC mc;
-    private MDB mdb;
+    public static MC mc;
+    public static MDB mdb;
     private MDR mdr;
     public static ScheduledThreadPoolExecutor executer;
 
     public Peer(String[] args) throws IOException{
         
         this.peerID = args[1];
-        this.mc = new MC(args[3], args[4]);
+        mc = new MC(args[3], args[4], this.peerID);
         //here will initiate the mdr and the mdb
-        this.mdb = new MDB(this.peerID, args[5], args[6]);
+        mdb = new MDB(this.peerID, args[5], args[6]);
         //this.mdr = new MDR(addr,port);
 
         executer = ( ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(15);       
@@ -29,8 +29,8 @@ public class Peer implements MessageRMI {
 
     public void getMessage() throws IOException {
 
-        executer.execute(this.mc);
-        executer.execute(this.mdb);
+        executer.execute(mc);
+        executer.execute(mdb);
         //executer.execute(this.mdr);
     }
 
@@ -41,15 +41,15 @@ public class Peer implements MessageRMI {
         //String msg = "Backup a file";
         //this.mc.sendMessage(msg);
         
-        this.mdb.sendMessage(filename);
+        mdb.sendMessage(filename);
         //here sends to the mdb  
         return "Backed a file";
     }
 
     public String restore() throws IOException {
 
-        String msg = "Restored a file";
-        this.mc.sendMessage(msg);
+        //String msg = "Restored a file";
+        //mc.sendMessage(msg);
         //here sends with the mdr
         return "Restore a file";
     }
@@ -57,19 +57,19 @@ public class Peer implements MessageRMI {
     public String delete() throws IOException {
 
         String msg = "Deleted a file";
-        this.mc.sendMessage(msg);
+        //mc.sendMessage(msg);
         return "Delete a file";
     }
 
     public String manage() throws IOException {
         String msg = "Managed a file";
-        this.mc.sendMessage(msg);
+        //mc.sendMessage(msg);
         return "Manage a file";
     }
 
     public String retrieve() throws IOException {
         String msg = "Retrieved a file";
-        this.mc.sendMessage(msg);
+        //mc.sendMessage(msg);
         return "Retrieve a file";
     }
 
@@ -97,5 +97,13 @@ public class Peer implements MessageRMI {
 
         thisPeer.getMessage();
 
+    }
+
+    public static MC getMC(){
+        return mc;
+    }
+
+    public static MDB getMDB(){
+        return mdb;
     }
 }
