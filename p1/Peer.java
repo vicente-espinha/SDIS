@@ -31,7 +31,7 @@ public class Peer implements MessageRMI {
 
         executer.execute(this.mc);
         executer.execute(this.mdb);
-        executer.execute(this.mdr);
+        //executer.execute(this.mdr);
     }
 
     public String backup(String filename) throws IOException {
