@@ -15,24 +15,24 @@ public class Peer implements MessageRMI {
     private String peerID;
     public static MC mc;
     public static MDB mdb;
-    private MDR mdr;
+    private static MDR mdr;
     public static ScheduledThreadPoolExecutor executer;
     public static Vector<DataStoreInitializer> dataStoredHash;
     public static Vector<DataPeerInitializer> dataPeerHash;
-    public static Hashtable<String,ArrayList<String>> storeCounter;
+    public static Hashtable<String, ArrayList<String>> storeCounter;
 
-    public Peer(String[] args) throws IOException{
-        
+    public Peer(String[] args) throws IOException {
+
         this.peerID = args[1];
         mc = new MC(args[3], args[4], this.peerID);
         //here will initiate the mdr and the mdb
         mdb = new MDB(this.peerID, args[5], args[6]);
         //this.mdr = new MDR(addr,port);
 
-        executer = ( ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(15);   
-        dataStoredHash = new Vector<DataStoreInitializer>(); 
+        executer = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(15);
+        dataStoredHash = new Vector<DataStoreInitializer>();
         dataPeerHash = new Vector<DataPeerInitializer>();
-        storeCounter = new Hashtable<String,ArrayList<String>>();
+        storeCounter = new Hashtable<String, ArrayList<String>>();
     }
 
     public void getMessage() throws IOException {
@@ -48,7 +48,7 @@ public class Peer implements MessageRMI {
         //this.mc.sendMessage(msg);
         //String msg = "Backup a file";
         //this.mc.sendMessage(msg);
-        
+
         mdb.sendMessage(filename, repDegree);
         //here sends to the mdb  
         return;
@@ -81,45 +81,45 @@ public class Peer implements MessageRMI {
         return "Retrieve a file";
     }
 
-    public static void main(String args[]) throws IOException{
-        if( args.length != 7) {
+    public static void main(String args[]) throws IOException {
+        if (args.length != 7) {
             System.out.println("Number of arguments not correct..");
             return;
         }
 
         Peer thisPeer = new Peer(args);
 
-            try {
+        try {
 
-                MessageRMI stub = (MessageRMI) UnicastRemoteObject.exportObject(thisPeer, 0);
+            MessageRMI stub = (MessageRMI) UnicastRemoteObject.exportObject(thisPeer, 0);
 
-                // Bind the remote object's stub in the registry
-                Registry registry = LocateRegistry.getRegistry();
-                registry.bind(args[1], stub);
+            // Bind the remote object's stub in the registry
+            Registry registry = LocateRegistry.getRegistry();
+            registry.bind(args[1], stub);
 
-                System.out.println("Peer ready");
-            } catch (Exception e) {
-                System.err.println("Peer exception: " + e.toString());
-                e.printStackTrace();
-            }
+            System.out.println("Peer ready");
+        } catch (Exception e) {
+            System.err.println("Peer exception: " + e.toString());
+            e.printStackTrace();
+        }
 
         thisPeer.getMessage();
 
     }
 
-    public static  Vector<DataStoreInitializer> getDataStoreInitializerVector(){
+    public static Vector<DataStoreInitializer> getDataStoreInitializerVector() {
         return dataStoredHash;
     }
 
-    public static  Vector<DataPeerInitializer> getDataPeerInitializerVector(){
+    public static Vector<DataPeerInitializer> getDataPeerInitializerVector() {
         return dataPeerHash;
     }
 
-    public static MC getMC(){
+    public static MC getMC() {
         return mc;
     }
 
-    public static MDB getMDB(){
+    public static MDB getMDB() {
         return mdb;
     }
 }

@@ -54,17 +54,21 @@ public class MDB implements Runnable {
                     chunk = new FileChunk(fileID, chunkNumber, buffer2, Integer.parseInt(repDegree));
                 }
                 temphash.add(chunk);
-                Peer.storeCounter.put(fileID+chunkNumber, new ArrayList<String>());
+                Peer.storeCounter.put(fileID + chunkNumber, new ArrayList<String>());
 
                 buffer = new byte[64000];
                 chunkNumber++;
             }
 
+            SendChunk sendchunk;
             //send all chunks of file
             for (FileChunk key : temphash) {
                 byte[] msgArr = msg.generateBackupReq(this.peerID, key);
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
-                this.msocket.send(message);
+                sendchunk = new SendChunk(key, this.msocket, message);
+
+                Peer.executer.execute(sendchunk);
+                
                 Peer.getDataPeerInitializerVector().add(new DataPeerInitializer(new File(fileName).getAbsolutePath(),
                         key.getFileID(), Integer.parseInt(repDegree)));
             }
@@ -104,6 +108,10 @@ public class MDB implements Runnable {
 
                 if (!headerArr[0].equals(Message.PUTCHUNK)) {
                     System.out.println("Expected PUTCHUNK got: " + headerArr[0]);
+                    continue;
+                }
+
+                if (this.peerID.equals(headerArr[2])) {
                     continue;
                 }
 
