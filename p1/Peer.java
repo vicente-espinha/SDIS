@@ -16,8 +16,8 @@ public class Peer implements MessageRMI {
     public static MDB mdb;
     private MDR mdr;
     public static ScheduledThreadPoolExecutor executer;
-    public static Vector<DataStoreInitializer> hash;
-    public static Vector<DataPeerInitializer> hash2;
+    public static Vector<DataStoreInitializer> dataStoredHash;
+    public static Vector<DataPeerInitializer> dataPeerHash;
 
     public Peer(String[] args) throws IOException{
         
@@ -28,8 +28,8 @@ public class Peer implements MessageRMI {
         //this.mdr = new MDR(addr,port);
 
         executer = ( ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(15);   
-        hash = new Vector<DataStoreInitializer>(); 
-        hash2 = new Vector<DataPeerInitializer>();
+        dataStoredHash = new Vector<DataStoreInitializer>(); 
+        dataPeerHash = new Vector<DataPeerInitializer>();
        
     }
 
@@ -106,11 +106,11 @@ public class Peer implements MessageRMI {
     }
 
     public static  Vector<DataStoreInitializer> getDataStoreInitializerVector(){
-        return hash;
+        return dataStoredHash;
     }
 
     public static  Vector<DataPeerInitializer> getDataPeerInitializerVector(){
-        return hash2;
+        return dataPeerHash;
     }
 
     public static MC getMC(){

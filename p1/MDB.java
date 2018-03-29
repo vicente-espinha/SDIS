@@ -111,7 +111,6 @@ public class MDB implements Runnable {
 
                 //saves the chunk
                 if (!exists) {
-                    System.out.println("existe");
                     chunk.save(headerArr[2]);
                     Peer.getDataStoreInitializerVector()
                             .add(new DataStoreInitializer(chunk.getFileID(), chunk.getBody().length, 1));//TODO change RepDegree
