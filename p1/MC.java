@@ -4,9 +4,9 @@ import java.util.concurrent.*;
 import java.util.Random;
 
 public class MC implements Runnable {
-    private InetAddress group;
-    private int port;
-    private MulticastSocket msocket;
+    InetAddress group;
+    int port;
+    MulticastSocket msocket;
 
     public MC(String address, String port) throws IOException {
 
