@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.nio.charset.*;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /*
 
@@ -53,7 +54,8 @@ public class MDB implements Runnable {
                 byte[] msgArr = msg.generateBackupReq(this.peerID, chunk);
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
                 this.msocket.send(message);
-                Peer.getDataPeerInitializerVector().add(new DataPeerInitializer(new File(fileName).getAbsolutePath(),chunk.getFileID(),1));//TODO change RepDegree
+                Peer.getDataPeerInitializerVector()
+                        .add(new DataPeerInitializer(new File(fileName).getAbsolutePath(), chunk.getFileID(), 1));//TODO change RepDegree
                 buffer = new byte[64000];
                 chunkNumber++;
             }
@@ -96,13 +98,32 @@ public class MDB implements Runnable {
                     continue;
                 }
 
-                //saves the chunk
+                //check if chunk already eists in this peer
+                Boolean exists = false;
+                for (int i = 0; i < Peer.getDataStoreInitializerVector().size(); i++) {
+                    if (headerArr[3].equals(Peer.getDataStoreInitializerVector().get(i).getFileID())) {
+                        exists = true;
+                    }
+                }
+
                 FileChunk chunk = new FileChunk(headerArr[3], Integer.parseInt(headerArr[4]), body,
-                        Integer.parseInt(headerArr[5]));
-                chunk.save(headerArr[2]);
-                Peer.getDataStoreInitializerVector().add(new DataStoreInitializer(chunk.getFileID(),chunk.getBody().length,1));//TODO change RepDegree
+                            Integer.parseInt(headerArr[5]));
+
+                //saves the chunk
+                if (!exists) {
+                    System.out.println("existe");
+                    chunk.save(headerArr[2]);
+                    Peer.getDataStoreInitializerVector()
+                            .add(new DataStoreInitializer(chunk.getFileID(), chunk.getBody().length, 1));//TODO change RepDegree
+
+                }
+
                 MCStored mcstored = new MCStored(chunk);
-                Peer.executer.execute(mcstored);
+                Random rand = new Random();
+                int randomNum = rand.nextInt(400);
+
+                //new thread here to process the received message (random between 0 and 400ms)
+                Peer.executer.schedule(mcstored, randomNum, TimeUnit.MILLISECONDS);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
 
@@ -110,10 +131,6 @@ public class MDB implements Runnable {
                 e.printStackTrace();
             }
 
-            //new thread here to process the received message (random between 0 and 400ms)
-            Random rand = new Random();
-            int randomNum = rand.nextInt(400);
-            //execute.schedule(classe que processa,randomNum,TimeOut.MILLISECONDS);
         }
 
     }
