@@ -13,11 +13,11 @@ public class MC implements Runnable {
     public MC(String address, String port) throws IOException {
 
         try {
-            System.out.println(address + " " + port + " " + Peer.peerID);
             this.group = InetAddress.getByName(address);
             this.port = Integer.parseInt(port);
             this.msocket = new MulticastSocket(this.port);
             this.msocket.joinGroup(this.group);
+            this.msocket.setTimeToLive(2);
             System.out.println("Multicast Socket open on " + address + ":" + port);
 
         } catch (SocketException e) {
@@ -44,7 +44,6 @@ public class MC implements Runnable {
 
             this.msocket.send(message);
 
-            System.out.println("Message sent: " + message.toString());
         } catch (SocketException e) {
             System.out.println("Error sending packet");
             e.printStackTrace();
@@ -55,7 +54,7 @@ public class MC implements Runnable {
     @Override
     public void run() {
         while (true) {
-            System.out.println(Peer.peerID + " aaaa " + Peer.storeCounter.size());
+            System.out.println("Stored: " + Peer.storeCounter.size());
             try {
 
                 byte[] buffer = new byte[65000];

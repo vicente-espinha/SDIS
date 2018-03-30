@@ -18,7 +18,6 @@ public class MCSendScheduled implements Runnable {
         try {
             Peer.getMC().getSocket().send(this.packet);
 
-            System.out.println("Message sent: " + this.packet.toString());
         } catch (SocketException e) {
             System.out.println("Error sending packet");
             e.printStackTrace();

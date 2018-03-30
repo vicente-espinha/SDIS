@@ -29,7 +29,7 @@ public class Peer implements MessageRMI {
         mdb = new MDB(args[5], args[6]);
         //this.mdr = new MDR(addr,port);
 
-        executer = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(500);
+        executer = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(300);
         dataStoredHash = new Vector<DataStoreInitializer>();
         dataPeerHash = new Vector<DataPeerInitializer>();
         storeCounter = new Hashtable<String, ArrayList<String>>();

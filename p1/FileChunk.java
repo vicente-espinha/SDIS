@@ -1,5 +1,6 @@
 import java.io.*;
 import java.nio.*;
+import java.nio.file.Files;
 
 public class FileChunk {
 
@@ -32,15 +33,17 @@ public class FileChunk {
     }
 
     public void save(String peerID) {
-        try {
-
-            FileOutputStream out = new FileOutputStream(peerID + this.fileID + this.chunkNumber);
-            out.write(this.body); //writes in bynary file
-            out.close(); //closes output stream
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        File f = new File(peerID + this.fileID + this.chunkNumber);
+        if(!f.exists() && !f.isDirectory()) { 
+            try {
+                FileOutputStream out = new FileOutputStream(peerID + this.fileID + this.chunkNumber);
+                out.write(this.body); //writes in bynary file
+                out.close(); //closes output stream
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

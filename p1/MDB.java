@@ -25,6 +25,7 @@ public class MDB implements Runnable {
             this.port = Integer.parseInt(port);
             this.msocket = new MulticastSocket(this.port);
             this.msocket.joinGroup(group);
+            this.msocket.setTimeToLive(2);
             System.out.println("Multicast Data Backup Channel open on " + address + ":" + this.port);
 
         } catch (SocketException e) {
@@ -32,6 +33,18 @@ public class MDB implements Runnable {
             e.printStackTrace();
         }
 
+    }
+
+    public InetAddress getGroup() {
+        return this.group;
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
+    public MulticastSocket getSocket() {
+        return this.msocket;
     }
 
     public void sendMessage(String fileName, String repDegree) throws IOException {
@@ -59,13 +72,17 @@ public class MDB implements Runnable {
                 chunkNumber++;
             }
 
-            SendChunk sendchunk;
+            
             //send all chunks of file
             for (FileChunk key : temphash) {
                 byte[] msgArr = msg.generateBackupReq(key);
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
-                sendchunk = new SendChunk(key, this.msocket, message);
-
+                SendChunk sendchunk = new SendChunk(key.getFileID(), key.getNumber(), key.getRepDeg(), message);
+                
+               // Random rand = new Random();
+                //int randomNum = rand.nextInt(400);
+                //new thread here to process the received message (random between 0 and 400ms)
+                //Peer.executer.schedule(sendchunk, randomNum, TimeUnit.MILLISECONDS);
                 Peer.executer.execute(sendchunk);
 
                 Peer.getDataPeerInitializerVector().add(new DataPeerInitializer(new File(fileName).getAbsolutePath(),

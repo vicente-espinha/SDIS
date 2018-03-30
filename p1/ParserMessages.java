@@ -59,12 +59,11 @@ public class ParserMessages implements Runnable {
     }
 
     public void processPutchunk() {
-        if (Peer.peerID.equals(headerArgs[SENDERID])) {
-            System.out.println(Peer.peerID);
+        if (Peer.peerID.equals(headerArgs[SENDERID])) 
             return;
-        } else {
-            System.out.println("Not the same peer that sent msg " + Peer.peerID);
-        }
+        
+        System.out.println("Chunk number: " + headerArgs[CHUNKNO]);
+        
 
         this.body = Arrays.copyOfRange(this.message, this.index + (Message.CRLF + Message.CRLF).length(),
                 this.message.length); //separates the chunk body
@@ -72,7 +71,7 @@ public class ParserMessages implements Runnable {
         //check if chunk already exists in this peer
         Boolean exists = false;
         for (int i = 0; i < Peer.getDataStoreInitializerVector().size(); i++) {
-            if (this.headerArgs[FILEID].equals(Peer.getDataStoreInitializerVector().get(i).getFileID())) {
+            if (this.headerArgs[FILEID].equals(Peer.getDataStoreInitializerVector().get(i).getFileID()) && Integer.parseInt(this.headerArgs[CHUNKNO]) == Peer.getDataStoreInitializerVector().get(i).getNumber()) {
                 exists = true;
             }
         }
@@ -84,10 +83,9 @@ public class ParserMessages implements Runnable {
         if (!exists) {
             chunk.save(this.headerArgs[SENDERID]);
             Peer.getDataStoreInitializerVector()
-                    .add(new DataStoreInitializer(chunk.getFileID(), chunk.getBody().length, chunk.getRepDeg()));
-            ArrayList<String> arlist = new ArrayList<String>();
-            arlist.add(Peer.peerID);
-            Peer.storeCounter.put(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO], arlist);
+                    .add(new DataStoreInitializer(chunk.getFileID(), chunk.getNumber(), chunk.getBody().length, chunk.getRepDeg()));
+            
+            processStored();
 
         }
 
@@ -104,13 +102,16 @@ public class ParserMessages implements Runnable {
     }
 
     public void processStored() {
-        System.out.print("Stored ");
         ArrayList<String> peers = Peer.storeCounter.get(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO]);
-        if (!peers.contains(this.headerArgs[SENDERID])) {
+        if (peers != null && !peers.contains(this.headerArgs[SENDERID])) {
             peers.add(this.headerArgs[SENDERID]);
             Peer.storeCounter.remove(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO]);
             Peer.storeCounter.put(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO], peers);
             System.out.println("yahedhadoawd + " + peers.size());
+        } else if(peers == null) {
+            peers = new ArrayList<String>();
+            peers.add(this.headerArgs[SENDERID]);
+            Peer.storeCounter.put(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO], peers);
         }
     }
 

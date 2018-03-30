@@ -10,15 +10,14 @@ import java.util.concurrent.TimeUnit;
 
 public class SendChunk implements Runnable {
 
-    private FileChunk chunk;
-    private MulticastSocket socket;
     private DatagramPacket message;
-    private int time;
-    private int timesSent;
+    private int time, timesSent, chunkNumber, repDeg;
+    private String fileID;
 
-    public SendChunk(FileChunk chunk, MulticastSocket socket, DatagramPacket message) throws IOException {
-        this.chunk = chunk;
-        this.socket = socket;
+    public SendChunk(String fileID, int chunkNumber, int repDeg, DatagramPacket message) throws IOException {
+        this.fileID = fileID;
+        this.chunkNumber = chunkNumber;
+        this.repDeg = repDeg;
         this.message = message;
         this.time = 1000;
         this.timesSent = 0;
@@ -27,14 +26,14 @@ public class SendChunk implements Runnable {
     @Override
     public void run() {
 
-        ArrayList<String> list = Peer.storeCounter.get(this.chunk.getFileID() + this.chunk.getNumber());
+        ArrayList<String> list = Peer.storeCounter.get(this.fileID + this.chunkNumber);
 
-        if (list.size() >= this.chunk.getRepDeg()) {
-            return;//TODO check if needs to be erased something
+        if (list.size() >= this.repDeg) {
+            return; //TODO check if needs to be erased something
         } else if (this.timesSent < 5) {
             //sends message
             try {
-                this.socket.send(this.message);
+                Peer.getMDB().getSocket().send(this.message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
