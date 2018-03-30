@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.Vector;
 
 public class Peer implements MessageRMI {
-    private String peerID;
+    public static String peerID;
     public static MC mc;
     public static MDB mdb;
     private static MDR mdr;
@@ -23,13 +23,13 @@ public class Peer implements MessageRMI {
 
     public Peer(String[] args) throws IOException {
 
-        this.peerID = args[1];
-        mc = new MC(args[3], args[4], this.peerID);
+        peerID = args[1];
+        mc = new MC(args[3], args[4]);
         //here will initiate the mdr and the mdb
-        mdb = new MDB(this.peerID, args[5], args[6]);
+        mdb = new MDB(args[5], args[6]);
         //this.mdr = new MDR(addr,port);
 
-        executer = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(15);
+        executer = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(500);
         dataStoredHash = new Vector<DataStoreInitializer>();
         dataPeerHash = new Vector<DataPeerInitializer>();
         storeCounter = new Hashtable<String, ArrayList<String>>();

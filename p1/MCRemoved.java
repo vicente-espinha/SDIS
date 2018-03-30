@@ -16,16 +16,16 @@ public class MCRemoved implements Runnable {
      */
     @Override 
     public void run() {  //TODO Change this method
-        try {
+       /* try {
             String msg = " "; //temp cuz error in msg.
-            DatagramPacket message = new DatagramPacket(msg.getBytes(), msg.length(), this.mc.group, this.mc.port);
-            this.mc.msocket.send(message);
+            //DatagramPacket message = new DatagramPacket(msg.getBytes(), msg.length(), this.mc.group, this.mc.port);
+            //this.mc.msocket.send(message);
             System.out.println("Message sent: " + msg);
         } catch (SocketException e) {
             System.out.println("Error sending packet");
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         return;
     }
 }

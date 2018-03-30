@@ -6,35 +6,48 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MC implements Runnable {
-    InetAddress group;
-    int port;
-    MulticastSocket msocket;
-    String peerID;
+    private InetAddress group;
+    private int port;
+    private MulticastSocket msocket;
 
-    public MC(String address, String port, String peerID) throws IOException {
+    public MC(String address, String port) throws IOException {
 
         try {
-            this.peerID = peerID;
+            System.out.println(address + " " + port + " " + Peer.peerID);
             this.group = InetAddress.getByName(address);
             this.port = Integer.parseInt(port);
             this.msocket = new MulticastSocket(this.port);
-            msocket.joinGroup(group);
-            System.out.println("Multicast Socket open on " + address + ":" + this.port);
+            this.msocket.joinGroup(this.group);
+            System.out.println("Multicast Socket open on " + address + ":" + port);
 
         } catch (SocketException e) {
             System.out.println("Error opening socket!\n");
+            e.printStackTrace();
         }
 
     }
 
-    public void sendMessage(String msg) throws IOException {
+    public InetAddress getGroup() {
+        return this.group;
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
+    public MulticastSocket getSocket() {
+        return this.msocket;
+    }
+
+    public void sendMessage(DatagramPacket message) throws IOException {
         try {
 
-            DatagramPacket message = new DatagramPacket(msg.getBytes(), msg.length(), this.group, this.port);
             this.msocket.send(message);
-            System.out.println("Message sent: " + msg);
+
+            System.out.println("Message sent: " + message.toString());
         } catch (SocketException e) {
             System.out.println("Error sending packet");
+            e.printStackTrace();
         }
         return;
     }
@@ -42,48 +55,25 @@ public class MC implements Runnable {
     @Override
     public void run() {
         while (true) {
-            System.out.println(this.peerID + " aaaa");
+            System.out.println(Peer.peerID + " aaaa " + Peer.storeCounter.size());
             try {
-                byte[] buf = new byte[1000];
 
-                DatagramPacket recv = new DatagramPacket(buf, buf.length);
+                byte[] buffer = new byte[65000];
+
+                DatagramPacket recv = new DatagramPacket(buffer, buffer.length);
                 this.msocket.receive(recv);
 
-                byte[] header = Arrays.copyOf(buf, recv.getLength());
-                String headerStr = new String(header);
-                
-                String[] headerArr = headerStr.split("(\\s)+"); //cleans the spaces and divides header into the parameters
-                switch(headerArr[0]){
-                    case Message.STORED:
-                        saveStored(headerArr);
-                        System.out.println("Yay");
-                        break;
-                    default:
-                        System.out.println("Nay");
-                        break;
-                }
-                buf = new byte[1000];
-                
+                byte[] temp = Arrays.copyOf(buffer, recv.getLength());
+
+                Peer.executer.execute(new ParserMessages(temp, "MC"));
+
             } catch (SocketException e) {
                 System.out.println("Error receiving packet");
-            }catch(IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            //new thread here to process the received message
-            //Random rand = new Random();
-            //int randomNum = rand.nextInt(400);
-            //execute.schedule(classe que processa,randomNum,TimeOut.MILLISECONDS);
         }
     }
 
-    private void saveStored(String[] header){
-        ArrayList<String> peers = Peer.storeCounter.get(header[3] + header[4]);
-        if(!peers.contains(header[2])){
-            peers.add(header[2]);
-            Peer.storeCounter.remove(header[3]+ header[4]);
-            Peer.storeCounter.put(header[3]+header[4], peers);
-            System.out.println("yahedhadoawd");
-        } 
-    }
 }

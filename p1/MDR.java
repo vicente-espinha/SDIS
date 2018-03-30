@@ -23,6 +23,7 @@ public class MDR implements Runnable {
 
         } catch (SocketException e) {
             System.out.println("Error opening MDR socket!\n");
+            e.printStackTrace();
         }
 
     }
