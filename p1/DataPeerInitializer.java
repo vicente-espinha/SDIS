@@ -6,11 +6,13 @@ public class DataPeerInitializer {
     String pathname;
     String fileID;
     int repDegree;
+    int numChunks;
 
-    public DataPeerInitializer(String pathname,String fileID, int repDegree) {
+    public DataPeerInitializer(String pathname,String fileID, int repDegree, int numChunks) {
         this.fileID = fileID;
         this.repDegree = repDegree;
         this.pathname = pathname;
+        this.numChunks = numChunks;
     }
 
 
@@ -25,6 +27,10 @@ public class DataPeerInitializer {
 
     public int getRepDeg() {
         return this.repDegree;
+    }
+
+    public int getNumChunks() {
+        return this.numChunks;
     }
 
 

@@ -77,9 +77,24 @@ public class Peer implements MessageRMI {
     }
 
     public String state() throws IOException {
-        String msg = "Retrieved a file";
-        //mc.sendMessage(msg);
-        return "Retrieve a file";
+        String state = "State of Peer " + peerID + ":\n";
+        state += "Number of files whose backup was initiated: " + dataPeerHash.size() + "\n";
+
+        for (DataPeerInitializer p : dataPeerHash) {
+            state += "-> " + p.getPathname() + "\n\tID: " + p.getFileID() + "\n\tReplication Degree: " + p.getRepDeg()
+                    + "\n";
+            for (int i = 1; i <= p.getNumChunks(); i++) {
+                ArrayList<String> peers = storeCounter.get(p.getFileID() + i);
+                state += "\t\t Chunk " + i + " - Saved on " + peers.size() + "\n";
+            }
+        }
+        state += "Number of chunks currently backing up: " + dataStoredHash.size() + "\n";
+        for (DataStoreInitializer s : dataStoredHash) {
+            state += "-> ID: " + s.getFileID() + " - " + s.getNumber() + "\n\tSize: " + s.getSize() + "KBytes\n\tPerceived Replication Degree: "
+                    + storeCounter.get(s.getFileID() + s.getNumber()) + "\n";
+            
+        }
+        return state;
     }
 
     public static void main(String args[]) throws IOException {
