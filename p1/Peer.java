@@ -17,7 +17,7 @@ public class Peer implements MessageRMI {
     public static MDB mdb;
     private static MDR mdr;
     public static ScheduledThreadPoolExecutor executer;
-    public static Vector<FileChunk> dataStoredHash;
+    public static Vector<DataStoreInitializer> dataStoredHash;
     public static Vector<DataPeerInitializer> dataPeerHash;
     public static Hashtable<String, ArrayList<String>> storeCounter;
 
@@ -30,7 +30,7 @@ public class Peer implements MessageRMI {
         //this.mdr = new MDR(addr,port);
 
         executer = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(300);
-        dataStoredHash = new Vector<FileChunk>();
+        dataStoredHash = new Vector<DataStoreInitializer>();
         dataPeerHash = new Vector<DataPeerInitializer>();
         storeCounter = new Hashtable<String, ArrayList<String>>();
     }
@@ -108,7 +108,7 @@ public class Peer implements MessageRMI {
 
     }
 
-    public static Vector<FileChunk> getDataStoreInitializerVector() {
+    public static Vector<DataStoreInitializer> getDataStoreInitializerVector() {
         return dataStoredHash;
     }
 

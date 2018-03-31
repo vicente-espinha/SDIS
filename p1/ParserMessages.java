@@ -86,7 +86,8 @@ public class ParserMessages implements Runnable {
         //saves the chunk
         if (!exists) {
             chunk.save(this.headerArgs[SENDERID]);
-            Peer.getDataStoreInitializerVector().add(chunk);
+            Peer.getDataStoreInitializerVector() 
+                    .add(new DataStoreInitializer(chunk.getFileID(), chunk.getNumber(), chunk.getBody().length, chunk.getRepDeg(),chunk.getFileName())); 
 
             processStored();
 
@@ -120,7 +121,7 @@ public class ParserMessages implements Runnable {
 
     public void processDelete() {
 
-        for (FileChunk d : Peer.getDataStoreInitializerVector()) {
+        for (DataStoreInitializer d : Peer.getDataStoreInitializerVector()) {
             if (d.getFileID().equals(headerArgs[FILEID])) {  //searches for all the chunks that peer has backed up
 
                 Peer.getDataStoreInitializerVector().remove(d); //removes chunk from the vector containing the chunks backed up
