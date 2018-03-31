@@ -36,6 +36,10 @@ public class SendChunk implements Runnable {
                 Peer.getMDB().getSocket().send(this.message);
             } catch (IOException e) {
                 e.printStackTrace();
+                Random rand = new Random();
+                int randomNum = rand.nextInt(500);
+                Peer.executer.schedule(this, randomNum, TimeUnit.MILLISECONDS);
+                return;
             }
 
             this.timesSent++;
