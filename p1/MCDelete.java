@@ -5,27 +5,31 @@ import java.util.Random;
 
 public class MCDelete implements Runnable {
 
-    MC mc;
+    private MC mc;
+    private String filename;
 
-    public MCDelete(MC mc)  {
+    public MCDelete(MC mc, String filename) {
         this.mc = mc;
+        this.filename = filename;
     }
 
     /**
      * Send DELETE message in MC;
      */
-    @Override 
-    public void run() {  //TODO Change this method
-      /*  try {
-            String msg = " "; //temp cuz error in msg.
-            DatagramPacket message = new DatagramPacket(msg.getBytes(), msg.length(), this.mc.getGroup(), this.mc.getPort());
-            //Peer.MC.msocket.send(message);
-            System.out.println("Message sent: " + msg);
+    @Override
+    public void run() { //TODO Change this method
+        try {
+            Message msgaux = new Message("1.0");
+            
+            byte[] msg = msgaux.generateDeleteReq(this.filename);//generates message
+
+            DatagramPacket message = new DatagramPacket(msg, msg.length, this.mc.getGroup(), this.mc.getPort());
+            this.mc.getSocket().send(message); //sends message to mc
         } catch (SocketException e) {
             System.out.println("Error sending packet");
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
         return;
     }
 }

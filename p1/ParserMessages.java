@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.net.*;
 import java.util.Random;
 import java.util.ArrayList;
+import java.io.File;
 
 public class ParserMessages implements Runnable {
     static final int TYPE = 0;
@@ -50,6 +51,9 @@ public class ParserMessages implements Runnable {
         case Message.GETCHUNK:
             break;
         case Message.DELETE:
+            if (this.channel.equals("MC")) {
+                processDelete();
+            }
             break;
         case Message.REMOVED:
             break;
@@ -59,11 +63,10 @@ public class ParserMessages implements Runnable {
     }
 
     public void processPutchunk() {
-        if (Peer.peerID.equals(headerArgs[SENDERID])) 
+        if (Peer.peerID.equals(headerArgs[SENDERID]))
             return;
-        
+
         System.out.println("Chunk number: " + headerArgs[CHUNKNO]);
-        
 
         this.body = Arrays.copyOfRange(this.message, this.index + (Message.CRLF + Message.CRLF).length(),
                 this.message.length); //separates the chunk body
@@ -71,7 +74,8 @@ public class ParserMessages implements Runnable {
         //check if chunk already exists in this peer
         Boolean exists = false;
         for (int i = 0; i < Peer.getDataStoreInitializerVector().size(); i++) {
-            if (this.headerArgs[FILEID].equals(Peer.getDataStoreInitializerVector().get(i).getFileID()) && Integer.parseInt(this.headerArgs[CHUNKNO]) == Peer.getDataStoreInitializerVector().get(i).getNumber()) {
+            if (this.headerArgs[FILEID].equals(Peer.getDataStoreInitializerVector().get(i).getFileID()) && Integer
+                    .parseInt(this.headerArgs[CHUNKNO]) == Peer.getDataStoreInitializerVector().get(i).getNumber()) {
                 exists = true;
             }
         }
@@ -82,9 +86,8 @@ public class ParserMessages implements Runnable {
         //saves the chunk
         if (!exists) {
             chunk.save(this.headerArgs[SENDERID]);
-            Peer.getDataStoreInitializerVector()
-                    .add(new DataStoreInitializer(chunk.getFileID(), chunk.getNumber(), chunk.getBody().length, chunk.getRepDeg()));
-            
+            Peer.getDataStoreInitializerVector().add(chunk);
+
             processStored();
 
         }
@@ -108,10 +111,35 @@ public class ParserMessages implements Runnable {
             Peer.storeCounter.remove(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO]);
             Peer.storeCounter.put(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO], peers);
             System.out.println("yahedhadoawd + " + peers.size());
-        } else if(peers == null) {
+        } else if (peers == null) {
             peers = new ArrayList<String>();
             peers.add(this.headerArgs[SENDERID]);
             Peer.storeCounter.put(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO], peers);
+        }
+    }
+
+    public void processDelete() {
+
+        for (FileChunk d : Peer.getDataStoreInitializerVector()) {
+            if (d.getFileID().equals(headerArgs[FILEID])) {  //searches for all the chunks that peer has backed up
+
+                Peer.getDataStoreInitializerVector().remove(d); //removes chunk from the vector containing the chunks backed up
+
+                try {
+
+                    File file = new File(d.getFileName());
+
+                    if (file.delete()) { //deletes file
+                        System.out.println(d.getFileName() + " is deleted!");
+                    } else {
+                        System.out.println("Delete operation is failed.");
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
         }
     }
 

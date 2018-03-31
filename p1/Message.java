@@ -31,16 +31,14 @@ public class Message {
 
     public byte[] generateBackupAnswer(FileChunk chunk) {
 
-        String reqMsg = generateHeader(STORED) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE + CRLF
-                + CRLF;
+        String reqMsg = generateHeader(STORED) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
 
         return reqMsg.getBytes();
     }
 
     public byte[] generateRestoreReq(FileChunk chunk) {
 
-        String reqMsg = generateHeader(GETCHUNK) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE
-                + CRLF + CRLF;
+        String reqMsg = generateHeader(GETCHUNK) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
 
         return reqMsg.getBytes();
     }
@@ -54,16 +52,15 @@ public class Message {
         return reqMsgArr;
     }
 
-    public byte[] generateDeleteReq(FileChunk chunk) {
+    public byte[] generateDeleteReq(String filename) throws IOException {
 
-        String reqMsg = generateHeader(DELETE) + chunk.getFileID() + SPACE + CRLF + CRLF;
+        String reqMsg = generateHeader(DELETE) + generateFileID(filename) + SPACE + CRLF + CRLF;
         return reqMsg.getBytes();
     }
 
     public byte[] generateRemovedAnswer(FileChunk chunk) {
 
-        String reqMsg = generateHeader(DELETE) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE + CRLF
-                + CRLF;
+        String reqMsg = generateHeader(DELETE) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
         return reqMsg.getBytes();
     }
 

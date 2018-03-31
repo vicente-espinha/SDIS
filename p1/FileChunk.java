@@ -8,6 +8,7 @@ public class FileChunk {
     int chunkNumber;
     byte[] body;
     int repDegree;
+    String filename;
 
     public FileChunk(String fileID, int chunkNumber, byte[] body, int repDegree) {
         this.fileID = fileID;
@@ -32,11 +33,18 @@ public class FileChunk {
         return this.repDegree;
     }
 
+    public String getFileName() {
+        return this.filename;
+    }
+
+
+    //saves chunk localy
     public void save(String peerID) {
         File f = new File(peerID + this.fileID + this.chunkNumber);
-        if(!f.exists() && !f.isDirectory()) { 
+        if (!f.exists() && !f.isDirectory()) {
             try {
-                FileOutputStream out = new FileOutputStream(peerID + this.fileID + this.chunkNumber);
+                this.filename = peerID + this.fileID + this.chunkNumber;
+                FileOutputStream out = new FileOutputStream(this.filename);
                 out.write(this.body); //writes in bynary file
                 out.close(); //closes output stream
             } catch (FileNotFoundException e) {
