@@ -6,7 +6,7 @@ public class DataStoreInitializer {
  
     String fileID; 
     int number; 
-    int size;//KBytes 
+    double size;//KBytes 
     int repDegree; 
     String filename;
  
@@ -14,7 +14,7 @@ public class DataStoreInitializer {
         this.fileID = fileID; 
         this.number = number; 
         this.repDegree = repDegree; 
-        this.size = size; 
+        this.size = size / 1000.0; 
         this.filename = filename;
     } 
  
@@ -27,7 +27,7 @@ public class DataStoreInitializer {
         return this.number; 
     } 
  
-    public int getSize() { 
+    public double getSize() { 
         return this.size; 
     } 
  

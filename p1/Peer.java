@@ -85,13 +85,13 @@ public class Peer implements MessageRMI {
                     + "\n";
             for (int i = 1; i <= p.getNumChunks(); i++) {
                 ArrayList<String> peers = storeCounter.get(p.getFileID() + i);
-                state += "\t\t Chunk " + i + " - Saved on " + peers.size() + "\n";
+                state += "\t\t Chunk " + i + " - Saved on " + peers.size() + " Peers\n";
             }
         }
         state += "Number of chunks currently backing up: " + dataStoredHash.size() + "\n";
         for (DataStoreInitializer s : dataStoredHash) {
-            state += "-> ID: " + s.getFileID() + " - " + s.getNumber() + "\n\tSize: " + s.getSize() + "KBytes\n\tPerceived Replication Degree: "
-                    + storeCounter.get(s.getFileID() + s.getNumber()) + "\n";
+            state += "-> ID: " + s.getFileID() + "\n\tChunk: " + s.getNumber() + "\n\tSize: " + s.getSize() + " KBytes\n\tPerceived Replication Degree: "
+                    + storeCounter.get(s.getFileID() + s.getNumber()).size() + "\n";
             
         }
         return state;

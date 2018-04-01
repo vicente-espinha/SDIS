@@ -85,9 +85,9 @@ public class MDB implements Runnable {
                 //Peer.executer.schedule(sendchunk, randomNum, TimeUnit.MILLISECONDS);
                 Peer.executer.execute(sendchunk);
 
-                Peer.getDataPeerInitializerVector().add(new DataPeerInitializer(new File(fileName).getAbsolutePath(),
-                        key.getFileID(), Integer.parseInt(repDegree), temphash.size()));
             }
+            Peer.getDataPeerInitializerVector().add(new DataPeerInitializer(new File(fileName).getAbsolutePath(),
+                temphash.get(0).getFileID(), Integer.parseInt(repDegree), temphash.size()));
 
             inputStream.close();
 

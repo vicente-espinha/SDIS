@@ -88,9 +88,11 @@ public class ParserMessages implements Runnable {
             chunk.save(this.headerArgs[SENDERID]);
             Peer.getDataStoreInitializerVector().add(new DataStoreInitializer(chunk.getFileID(), chunk.getNumber(),
                     chunk.getBody().length, chunk.getRepDeg(), chunk.getFileName()));
-
-            processStored();
-
+            ArrayList<String> peers = Peer.storeCounter.get(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO]);
+            if (peers == null) {
+                peers = new ArrayList<String>();
+                Peer.storeCounter.put(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO], peers);
+            }
         }
 
         Message msg = new Message(this.headerArgs[VERSION]);
