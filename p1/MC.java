@@ -39,22 +39,42 @@ public class MC implements Runnable {
         return this.msocket;
     }
 
-    public void sendMessage(DatagramPacket message) throws IOException {
+    public void sendMessage(String fileName) throws IOException {
+
         try {
 
-            this.msocket.send(message);
+            Message msg = new Message("1.0");
+            String fileID = msg.generateFileID(fileName);
 
-        } catch (SocketException e) {
-            System.out.println("Error sending packet");
+            for (int i = 0; i < Peer.getDataPeerInitializerVector().size(); i++) {
+                if (Peer.getDataPeerInitializerVector().get(i).getFileID().equals(fileID)) {
+
+                    int nChunks = Peer.getDataPeerInitializerVector().get(i).getNumChunks(); //saves the number of chunks of the file
+
+                    for (int j = 1; j < nChunks; i++) {
+
+                        byte[] msgArr = msg.generateRestoreReq(fileID, j);
+
+                        DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
+
+                        SendGetChunk sender = new SendGetChunk(message);
+
+                        Random rand = new Random();
+                        int randomNum = rand.nextInt(400);
+                        Peer.executer.schedule(sender, randomNum, TimeUnit.MILLISECONDS);
+                    }
+                }
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
         return;
     }
 
     @Override
     public void run() {
         while (true) {
-            System.out.println("Stored: " + Peer.storeCounter.size());
             try {
 
                 byte[] buffer = new byte[65000];

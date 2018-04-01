@@ -36,9 +36,9 @@ public class Message {
         return reqMsg.getBytes();
     }
 
-    public byte[] generateRestoreReq(FileChunk chunk) {
+    public byte[] generateRestoreReq(String fileID, int number) {
 
-        String reqMsg = generateHeader(GETCHUNK) + chunk.getFileID() + SPACE + chunk.getNumber() + SPACE + CRLF + CRLF;
+        String reqMsg = generateHeader(GETCHUNK) + fileID + SPACE + number + SPACE + CRLF + CRLF;
 
         return reqMsg.getBytes();
     }

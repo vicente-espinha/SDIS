@@ -48,8 +48,14 @@ public class ParserMessages implements Runnable {
             }
             break;
         case Message.CHUNK:
+            if (this.channel.equals("MDR")) {
+                processChunk();
+            }
             break;
         case Message.GETCHUNK:
+            if (this.channel.equals("MC")) {
+                processGetChunk();
+            }
             break;
         case Message.DELETE:
             if (this.channel.equals("MC")) {
@@ -147,9 +153,17 @@ public class ParserMessages implements Runnable {
 
             }
         }
-        for(DataStoreInitializer s : removing){
+        for (DataStoreInitializer s : removing) {
             Peer.getDataStoreInitializerVector().remove(s);
         }
+    }
+
+    public void processGetChunk() {
+
+    }
+
+    public void processChunk(){
+        
     }
 
     public void run() {

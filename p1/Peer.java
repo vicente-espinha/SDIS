@@ -15,7 +15,7 @@ public class Peer implements MessageRMI {
     public static String peerID;
     public static MC mc;
     public static MDB mdb;
-    private static MDR mdr;
+    public static MDR mdr;
     public static ScheduledThreadPoolExecutor executer;
     public static Vector<DataStoreInitializer> dataStoredHash;
     public static Vector<DataPeerInitializer> dataPeerHash;
@@ -27,7 +27,7 @@ public class Peer implements MessageRMI {
         mc = new MC(args[3], args[4]);
         //here will initiate the mdr and the mdb
         mdb = new MDB(args[5], args[6]);
-        //this.mdr = new MDR(addr,port);
+        mdr = new MDR(args[7], args[8]);
 
         executer = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(300);
         dataStoredHash = new Vector<DataStoreInitializer>();
@@ -39,20 +39,18 @@ public class Peer implements MessageRMI {
 
         executer.execute(mc);
         executer.execute(mdb);
-        //executer.execute(this.mdr);
+        executer.execute(mdr);
     }
 
     public void backup(String filename, String repDegree) throws IOException {
 
-        mdb.sendMessage(filename, repDegree); 
+        mdb.sendMessage(filename, repDegree);
         return;
     }
 
     public void restore(String filename) throws IOException {
 
-        //String msg = "Restored a file";
-        //mc.sendMessage(msg);
-        //here sends with the mdr
+        mc.sendMessage(filename);
         return;
     }
 
@@ -60,7 +58,6 @@ public class Peer implements MessageRMI {
 
         MCDelete channel = new MCDelete(filename);
         executer.execute(channel);
-        //mc.sendMessage(msg);
         return;
     }
 
@@ -84,9 +81,10 @@ public class Peer implements MessageRMI {
         }
         state += "Number of chunks currently backing up: " + dataStoredHash.size() + "\n";
         for (DataStoreInitializer s : dataStoredHash) {
-            state += "-> ID: " + s.getFileID() + "\n\tChunk: " + s.getNumber() + "\n\tSize: " + s.getSize() + " KBytes\n\tPerceived Replication Degree: "
+            state += "-> ID: " + s.getFileID() + "\n\tChunk: " + s.getNumber() + "\n\tSize: " + s.getSize()
+                    + " KBytes\n\tPerceived Replication Degree: "
                     + storeCounter.get(s.getFileID() + s.getNumber()).size() + "\n";
-            
+
         }
         return state;
     }
@@ -131,5 +129,9 @@ public class Peer implements MessageRMI {
 
     public static MDB getMDB() {
         return mdb;
+    }
+
+    public static MDR getMDR() {
+        return mdr;
     }
 }

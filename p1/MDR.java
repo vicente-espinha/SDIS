@@ -1,6 +1,9 @@
 import java.io.IOException;
 import java.net.*;
+import java.util.concurrent.*;
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /*
 
@@ -19,6 +22,7 @@ public class MDR implements Runnable {
             this.port = Integer.parseInt(port);
             this.msocket = new MulticastSocket(this.port);
             msocket.joinGroup(group);
+            this.msocket.setTimeToLive(2);
             System.out.println("Multicast Data Recovery Channel (MDR) open on " + address + ":" + this.port);
 
         } catch (SocketException e) {
@@ -26,6 +30,18 @@ public class MDR implements Runnable {
             e.printStackTrace();
         }
 
+    }
+
+    public InetAddress getGroup() {
+        return this.group;
+    }
+
+    public int getPort() {
+        return this.port;
+    }
+
+    public MulticastSocket getSocket() {
+        return this.msocket;
     }
 
     public void sendMessage(String msg) throws IOException {
@@ -44,24 +60,19 @@ public class MDR implements Runnable {
     public void run() {
         while (true) {
 
-            byte[] buf = new byte[1000];
             try {
 
-                DatagramPacket recv = new DatagramPacket(buf, buf.length);
+                byte[] buffer = new byte[65000];
+                DatagramPacket recv = new DatagramPacket(buffer, buffer.length);
                 this.msocket.receive(recv);
-                String msg = new String(recv.getData());
-                System.out.println(msg);
-            } catch (SocketException e) {
-                System.out.println("Error receiving packet (MDR)");
-            }catch(IOException e){
+                byte[] temp = Arrays.copyOf(buffer, recv.getLength());
+                Peer.executer.execute(new ParserMessages(temp, "MDR"));
+
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            //new thread here to process the received message
-            Random rand = new Random();
-            int randomNum = rand.nextInt(400);
-            //execute.schedule(classe que processa,randomNum,TimeOut.MILLISECONDS);
-
         }
+
     }
 }
