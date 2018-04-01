@@ -44,13 +44,7 @@ public class Peer implements MessageRMI {
 
     public void backup(String filename, String repDegree) throws IOException {
 
-        //String msg = "Backup a file";
-        //this.mc.sendMessage(msg);
-        //String msg = "Backup a file";
-        //this.mc.sendMessage(msg);
-
-        mdb.sendMessage(filename, repDegree);
-        //here sends to the mdb  
+        mdb.sendMessage(filename, repDegree); 
         return;
     }
 
@@ -64,7 +58,7 @@ public class Peer implements MessageRMI {
 
     public void delete(String filename) throws IOException {
 
-        MCDelete channel = new MCDelete(mc, filename);
+        MCDelete channel = new MCDelete(filename);
         executer.execute(channel);
         //mc.sendMessage(msg);
         return;

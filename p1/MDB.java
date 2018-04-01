@@ -72,22 +72,21 @@ public class MDB implements Runnable {
                 chunkNumber++;
             }
 
-            
             //send all chunks of file
             for (FileChunk key : temphash) {
                 byte[] msgArr = msg.generateBackupReq(key);
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
                 SendChunk sendchunk = new SendChunk(key.getFileID(), key.getNumber(), key.getRepDeg(), message);
-                
-               // Random rand = new Random();
+
+                // Random rand = new Random();
                 //int randomNum = rand.nextInt(400);
                 //new thread here to process the received message (random between 0 and 400ms)
                 //Peer.executer.schedule(sendchunk, randomNum, TimeUnit.MILLISECONDS);
                 Peer.executer.execute(sendchunk);
 
             }
-            Peer.getDataPeerInitializerVector().add(new DataPeerInitializer(new File(fileName).getAbsolutePath(),
-                temphash.get(0).getFileID(), Integer.parseInt(repDegree), temphash.size()));
+            Peer.getDataPeerInitializerVector().add(new DataPeerInitializer(fileName, temphash.get(0).getFileID(),
+                    Integer.parseInt(repDegree), temphash.size()));
 
             inputStream.close();
 

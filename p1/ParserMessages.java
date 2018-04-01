@@ -2,6 +2,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.Arrays;
 import java.net.*;
 import java.util.Random;
+import java.util.Vector;
 import java.util.ArrayList;
 import java.io.File;
 
@@ -122,27 +123,32 @@ public class ParserMessages implements Runnable {
     }
 
     public void processDelete() {
-
+        Vector<DataStoreInitializer> removing = new Vector<DataStoreInitializer>();
         for (DataStoreInitializer d : Peer.getDataStoreInitializerVector()) {
             if (d.getFileID().equals(headerArgs[FILEID])) { //searches for all the chunks that peer has backed up
-
-                Peer.getDataStoreInitializerVector().remove(d); //removes chunk from the vector containing the chunks backed up
 
                 try {
 
                     File file = new File(d.getFileName());
+                    if (file.exists()) {
 
-                    if (file.delete()) { //deletes file
-                        System.out.println(d.getFileName() + " is deleted!");
-                    } else {
-                        System.out.println("Delete operation is failed.");
-                    }
+                        if (file.delete()) { //deletes file
+                            System.out.println(d.getFileName() + " is deleted!");
+                            removing.add(d); //removes chunk from the vector containing the chunks backed up
+                        } else {
+                            System.out.println("Delete operation failed.");
+                        }
+                    } else
+                        removing.add(d); //removes chunk from the vector containing the chunks backed up
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
             }
+        }
+        for(DataStoreInitializer s : removing){
+            Peer.getDataStoreInitializerVector().remove(s);
         }
     }
 
