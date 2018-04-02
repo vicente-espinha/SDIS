@@ -46,6 +46,8 @@ public class MC implements Runnable {
         int nChunks = Peer.getDataPeerInitializerVector().get(identifierFile).getNumChunks(); //saves the number of chunks of the file
 
         for (int j = 1; j <= nChunks; j++) {
+            byte[] e = new byte[0];
+            Peer.restoreTemp.add(e);
 
             String fileID = Peer.getDataPeerInitializerVector().get(identifierFile).getFileID();
             byte[] msgArr = msg.generateRestoreReq(fileID, j);

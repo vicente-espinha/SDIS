@@ -20,9 +20,10 @@ public class Peer implements MessageRMI {
     public static Vector<DataStoreInitializer> dataStoredHash;
     public static Vector<DataPeerInitializer> dataPeerHash;
     public static Hashtable<String, ArrayList<String>> storeCounter;
-    public static ArrayList<FileChunk> restoreTemp;
+    public static ArrayList<byte[]> restoreTemp;
     public static Boolean currentlyRestoring;
     public static String fileRestoring;
+    public static ArrayList<String> getchunks;
 
     public Peer(String[] args) throws IOException {
 
@@ -35,9 +36,10 @@ public class Peer implements MessageRMI {
         dataStoredHash = new Vector<DataStoreInitializer>();
         dataPeerHash = new Vector<DataPeerInitializer>();
         storeCounter = new Hashtable<String, ArrayList<String>>();
-        restoreTemp = new ArrayList<FileChunk>();
+        restoreTemp = new ArrayList<byte[]>();
         currentlyRestoring = false;
         fileRestoring = "";
+        getchunks = new ArrayList<String>();
     }
 
     public void getMessage() throws IOException {
@@ -106,7 +108,7 @@ public class Peer implements MessageRMI {
     }
 
     public static void main(String args[]) throws IOException {
-        if (args.length != 7) {
+        if (args.length != 9) {
             System.out.println("Number of arguments not correct..");
             return;
         }
@@ -151,7 +153,7 @@ public class Peer implements MessageRMI {
         return mdr;
     } 
 
-    public static ArrayList<FileChunk> getRestoreTemp(){
+    public static ArrayList<byte[]> getRestoreTemp(){
         return restoreTemp;
     }
 
@@ -161,5 +163,9 @@ public class Peer implements MessageRMI {
 
     public static String getFileRestoring(){
         return fileRestoring;
+    }
+
+    public static ArrayList<String> getGetChunks(){
+        return getchunks;
     }
 }

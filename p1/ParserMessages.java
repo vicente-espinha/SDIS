@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.io.File;
 import java.io.*;
 
-
 public class ParserMessages implements Runnable {
     static final int TYPE = 0;
     static final int VERSION = 1;
@@ -86,6 +85,7 @@ public class ParserMessages implements Runnable {
             if (this.headerArgs[FILEID].equals(Peer.getDataStoreInitializerVector().get(i).getFileID()) && Integer
                     .parseInt(this.headerArgs[CHUNKNO]) == Peer.getDataStoreInitializerVector().get(i).getNumber()) {
                 exists = true;
+                break;
             }
         }
 
@@ -161,13 +161,70 @@ public class ParserMessages implements Runnable {
     }
 
     public void processGetChunk() {
+        //check if chunk exists in this peer
+        Boolean exists = false;
+        int idx = -1;
+        for (int i = 0; i < Peer.getDataStoreInitializerVector().size(); i++) {
+            if (this.headerArgs[FILEID].equals(Peer.getDataStoreInitializerVector().get(i).getFileID()) && Integer
+                    .parseInt(this.headerArgs[CHUNKNO]) == Peer.getDataStoreInitializerVector().get(i).getNumber()) {
+                exists = true;
+                idx = i;
+                break;
+            }
+        }
+        if (exists && idx > -1) {
+            try {
 
+                byte[] buffer = new byte[64000];
+                FileInputStream inputStream = new FileInputStream(
+                        this.headerArgs[SENDERID] + this.headerArgs[FILEID] + this.headerArgs[CHUNKNO]);
+                int nRead;
+                if ((nRead = inputStream.read(buffer)) != -1) {
+
+                    Message msg = new Message("1.0");
+                    byte[] buffer2 = Arrays.copyOf(buffer, nRead);
+                    FileChunk fchunk = new FileChunk(this.headerArgs[FILEID],
+                            Integer.parseInt(this.headerArgs[CHUNKNO]), buffer2, 0);
+                    byte[] msgArr = msg.generateRestoreAnswer(fchunk);
+
+                    DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, Peer.getMDR().getGroup(),
+                            Peer.getMDR().getPort());
+                    MDRSendChunk sendchunk = new MDRSendChunk(message, this.headerArgs[FILEID],
+                            this.headerArgs[CHUNKNO]);
+
+                    Random rand = new Random();
+                    int randomNum = rand.nextInt(400);
+                    Peer.executer.schedule(sendchunk, randomNum, TimeUnit.MILLISECONDS);
+                }
+            } catch (FileNotFoundException e) {
+                System.out.println("Error opening file");
+                e.printStackTrace();
+
+            } catch (IOException e) {
+                System.out.println("Error reading file");
+                e.printStackTrace();
+            }
+            return;
+        }
+    }
+
+    public void addGetChunk() {
+        for (int i = 0; i < Peer.getGetChunks().size(); i++) {
+            if ((this.headerArgs[FILEID] + this.headerArgs[CHUNKNO]).equals(Peer.getGetChunks().get(i))) {
+                return;
+            }
+        }
+        if (!Peer.peerID.equals(this.headerArgs[SENDERID]))
+            Peer.getGetChunks().add(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO]);
     }
 
     public void processChunk() {
+        addGetChunk();
         if (Peer.getCurrentlyRestoring()) {
             for (int i = 0; i < Peer.getDataPeerInitializerVector().size(); i++) {
-                if (Peer.getDataPeerInitializerVector().get(i).getFileID().equals(this.headerArgs[FILEID])) {
+                if (Peer.getDataPeerInitializerVector().get(i).getFileID().equals(this.headerArgs[FILEID])
+                        && Peer.getFileRestoring().equals(Peer.getDataPeerInitializerVector().get(i).getPathname())) {
+                    System.out.println("RRRRRRRRRRRRRRRRRRR");
                     saveRestoredChunk(i);
                     break;
                 }
@@ -176,26 +233,35 @@ public class ParserMessages implements Runnable {
     }
 
     public void saveRestoredChunk(int i) {
-        FileChunk chunk = Peer.getRestoreTemp().get(Integer.parseInt(this.headerArgs[CHUNKNO]) - 1);
-        if (chunk == null) {
+       
+       if(Peer.getRestoreTemp().get(Integer.parseInt(this.headerArgs[CHUNKNO]) - 1).length == 0){
+      
             this.body = Arrays.copyOfRange(this.message, this.index + (Message.CRLF + Message.CRLF).length(),
-                    this.message.length); //separates the chunk body
-
-            chunk = new FileChunk(this.headerArgs[FILEID], Integer.parseInt(this.headerArgs[CHUNKNO]), this.body,
-                    Integer.parseInt(this.headerArgs[REPDEG]));
-            Peer.getRestoreTemp().set(Integer.parseInt(headerArgs[CHUNKNO]) - 1, chunk);
+                    this.message.length); //separates the chunk body  
+          
+            Peer.getRestoreTemp().set(Integer.parseInt(headerArgs[CHUNKNO]) - 1, this.body);
+        
+        Boolean exists = false;
+        for(int j = 0; j < Peer.getRestoreTemp().size(); j++){
+            if(Peer.getRestoreTemp().get(j).length == 0){
+                exists = true;
+                break;
+            }
         }
-        if (Peer.getDataPeerInitializerVector().get(i).getNumChunks() == Peer.getRestoreTemp().size()) {
+        if (!exists) {
 
             try {
-                FileOutputStream out = new FileOutputStream(Peer.getFileRestoring(), false);
-                out.write(Peer.getRestoreTemp().get(0).getBody()); //writes in bynary file
-                out.close(); //closes output stream
-                out = new FileOutputStream(Peer.getFileRestoring(), true);
-                for (int c = 1; c < Peer.getRestoreTemp().size(); c++) {
-                    out.write(Peer.getRestoreTemp().get(0).getBody()); //writes in bynary file
-                }
-                out.close(); //closes output stream
+                if (Peer.getRestoreTemp().size() > 1) {
+                    
+                    FileOutputStream out = new FileOutputStream(Peer.getFileRestoring(), false);
+                    for (int c = 0; c < Peer.getRestoreTemp().size(); c++) {
+                        out.write(Peer.getRestoreTemp().get(c)); //writes in bynary file
+                    }
+                    out.close(); //closes output stream
+            
+                Peer.fileRestoring = "";
+                Peer.currentlyRestoring = false;
+                Peer.restoreTemp = new ArrayList<byte[]>();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
