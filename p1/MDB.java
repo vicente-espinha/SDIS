@@ -78,10 +78,6 @@ public class MDB implements Runnable {
                 DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
                 SendChunk sendchunk = new SendChunk(key.getFileID(), key.getNumber(), key.getRepDeg(), message);
 
-                // Random rand = new Random();
-                //int randomNum = rand.nextInt(400);
-                //new thread here to process the received message (random between 0 and 400ms)
-                //Peer.executer.schedule(sendchunk, randomNum, TimeUnit.MILLISECONDS);
                 Peer.executer.execute(sendchunk);
 
             }

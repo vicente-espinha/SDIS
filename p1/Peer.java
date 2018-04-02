@@ -83,8 +83,7 @@ public class Peer implements MessageRMI {
     }
 
     public void reclaim(String storage) throws IOException {
-        String msg = "Managed a file";
-        //mc.sendMessage(msg);
+        
         return;
     }
 
