@@ -19,7 +19,7 @@ To run the client:
         -"java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>"
         where:
             <peer_ap>
-                Is the peer's access point.
+                Is the peer's access point. Should be sent as <host>/<server_access_point>.
             <operation>
                 Is the operation the peer of the backup service must execute. It can be BACKUP, RESTORE, DELETE, RECLAIM or STATE.
             <opnd_1>
