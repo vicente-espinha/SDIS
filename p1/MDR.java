@@ -49,7 +49,6 @@ public class MDR implements Runnable {
 
             DatagramPacket message = new DatagramPacket(msg.getBytes(), msg.length(), this.group, this.port);
             this.msocket.send(message);
-            System.out.println("Message sent: " + msg);
         } catch (SocketException e) {
             System.out.println("Error sending packet (MDR)");
         }

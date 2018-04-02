@@ -10,7 +10,7 @@ To run peer:
 -navigate to the project's directory
 -open a terminal in that directory and type the following commands:
         -"rmiregistry &" only needed one time per local host
-        -"java Peer <VersionID> <PeerID> <ServerID> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>"
+        -"java Peer <VersionID> <PeerID> <AccessPoint> <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>"
 
 
 To run the client: 

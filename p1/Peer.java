@@ -49,16 +49,19 @@ public class Peer implements MessageRMI {
         executer.execute(mdr);
     }
 
-    public void backup(String filename, String repDegree) throws IOException {
-
+    public String backup(String filename, String repDegree) throws IOException {
+        for (int i = 0; i < Peer.getDataPeerInitializerVector().size(); i++) {
+            if (Peer.getDataPeerInitializerVector().get(i).getPathname().equals(filename))
+                return filename + " is already backed up!";
+        }
         mdb.sendMessage(filename, repDegree);
-        return;
+        return "Backing up " + filename;
     }
 
     public String restore(String filename) throws IOException {
-        if(!currentlyRestoring){
+        if (!currentlyRestoring) {
             for (int i = 0; i < dataPeerHash.size(); i++) {
-                if (dataPeerHash.get(i).getPathname().equals(filename)){
+                if (dataPeerHash.get(i).getPathname().equals(filename)) {
 
                     fileRestoring = filename;
                     currentlyRestoring = true;
@@ -66,7 +69,7 @@ public class Peer implements MessageRMI {
                     return "Restoring file " + filename;
                 }
             }
-            return "File " + filename + " not backed up!"; 
+            return "File " + filename + " not backed up!";
         } else {
             return "Already restoring the file " + fileRestoring + "!";
         }
@@ -98,19 +101,27 @@ public class Peer implements MessageRMI {
             }
         }
         state += "Number of chunks currently backing up: " + dataStoredHash.size() + "\n";
+        double occupied = 0.0;
         for (DataStoreInitializer s : dataStoredHash) {
             state += "-> ID: " + s.getFileID() + "\n\tChunk: " + s.getNumber() + "\n\tSize: " + s.getSize()
                     + " KBytes\n\tPerceived Replication Degree: "
                     + storeCounter.get(s.getFileID() + s.getNumber()).size() + "\n";
+            occupied += s.getSize();
 
         }
+        state += "Space occupied by all chunks: " + occupied + " KBytes.";
         return state;
     }
 
     public static void main(String args[]) throws IOException {
         if (args.length != 9) {
-            System.out.println("Number of arguments not correct..");
+            System.out.println("Number of arguments not correct..\n" + "java Peer <VersionID> <PeerID> <AccessPoint>"
+                    + " <MC_addr> <MC_port> <MDB_addr> <MDB_port> <MDR_addr> <MDR_port>");
             return;
+        }
+        if(!args[1].matches("[0-9]+")){
+            System.out.println("Peer id must be only numbers!");
+            return; 
         }
 
         Peer thisPeer = new Peer(args);
@@ -121,15 +132,16 @@ public class Peer implements MessageRMI {
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
-            registry.bind(args[1], stub);
+            registry.bind(args[2], stub);
 
             System.out.println("Peer ready");
+            thisPeer.getMessage();
+            
         } catch (Exception e) {
             System.err.println("Peer exception: " + e.toString());
             e.printStackTrace();
         }
 
-        thisPeer.getMessage();
 
     }
 
@@ -151,21 +163,21 @@ public class Peer implements MessageRMI {
 
     public static MDR getMDR() {
         return mdr;
-    } 
+    }
 
-    public static ArrayList<byte[]> getRestoreTemp(){
+    public static ArrayList<byte[]> getRestoreTemp() {
         return restoreTemp;
     }
 
-    public static Boolean getCurrentlyRestoring(){
+    public static Boolean getCurrentlyRestoring() {
         return currentlyRestoring;
     }
 
-    public static String getFileRestoring(){
+    public static String getFileRestoring() {
         return fileRestoring;
     }
 
-    public static ArrayList<String> getGetChunks(){
+    public static ArrayList<String> getGetChunks() {
         return getchunks;
     }
 }

@@ -74,8 +74,6 @@ public class ParserMessages implements Runnable {
         if (Peer.peerID.equals(headerArgs[SENDERID]))
             return;
 
-        System.out.println("Chunk number: " + headerArgs[CHUNKNO]);
-
         this.body = Arrays.copyOfRange(this.message, this.index + (Message.CRLF + Message.CRLF).length(),
                 this.message.length); //separates the chunk body
 
@@ -122,7 +120,6 @@ public class ParserMessages implements Runnable {
             peers.add(this.headerArgs[SENDERID]);
             Peer.storeCounter.remove(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO]);
             Peer.storeCounter.put(this.headerArgs[FILEID] + this.headerArgs[CHUNKNO], peers);
-            System.out.println("yahedhadoawd + " + peers.size());
         } else if (peers == null) {
             peers = new ArrayList<String>();
             peers.add(this.headerArgs[SENDERID]);
@@ -224,7 +221,6 @@ public class ParserMessages implements Runnable {
             for (int i = 0; i < Peer.getDataPeerInitializerVector().size(); i++) {
                 if (Peer.getDataPeerInitializerVector().get(i).getFileID().equals(this.headerArgs[FILEID])
                         && Peer.getFileRestoring().equals(Peer.getDataPeerInitializerVector().get(i).getPathname())) {
-                    System.out.println("RRRRRRRRRRRRRRRRRRR");
                     saveRestoredChunk(i);
                     break;
                 }
