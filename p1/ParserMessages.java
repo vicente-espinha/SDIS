@@ -233,17 +233,19 @@ public class ParserMessages implements Runnable {
     }
 
     public void saveRestoredChunk(int i) {
-       
-       if(Peer.getRestoreTemp().get(Integer.parseInt(this.headerArgs[CHUNKNO]) - 1).length == 0){
-      
+
+        if (Peer.getRestoreTemp().get(Integer.parseInt(this.headerArgs[CHUNKNO]) - 1).length == 0) {
+
             this.body = Arrays.copyOfRange(this.message, this.index + (Message.CRLF + Message.CRLF).length(),
-                    this.message.length); //separates the chunk body  
-          
+                    this.message.length); //separates the chunk body
+
             Peer.getRestoreTemp().set(Integer.parseInt(headerArgs[CHUNKNO]) - 1, this.body);
-        
+
+        }
+
         Boolean exists = false;
-        for(int j = 0; j < Peer.getRestoreTemp().size(); j++){
-            if(Peer.getRestoreTemp().get(j).length == 0){
+        for (int j = 0; j < Peer.getRestoreTemp().size(); j++) {
+            if (Peer.getRestoreTemp().get(j).length == 0) {
                 exists = true;
                 break;
             }
@@ -251,14 +253,13 @@ public class ParserMessages implements Runnable {
         if (!exists) {
 
             try {
-                if (Peer.getRestoreTemp().size() > 1) {
-                    
-                    FileOutputStream out = new FileOutputStream(Peer.getFileRestoring(), false);
-                    for (int c = 0; c < Peer.getRestoreTemp().size(); c++) {
-                        out.write(Peer.getRestoreTemp().get(c)); //writes in bynary file
-                    }
-                    out.close(); //closes output stream
-            
+
+                FileOutputStream out = new FileOutputStream(Peer.getFileRestoring(), false);
+                for (int c = 0; c < Peer.getRestoreTemp().size(); c++) {
+                    out.write(Peer.getRestoreTemp().get(c)); //writes in bynary file
+                }
+                out.close(); //closes output stream
+
                 Peer.fileRestoring = "";
                 Peer.currentlyRestoring = false;
                 Peer.restoreTemp = new ArrayList<byte[]>();
