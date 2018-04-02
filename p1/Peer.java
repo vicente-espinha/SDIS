@@ -20,12 +20,14 @@ public class Peer implements MessageRMI {
     public static Vector<DataStoreInitializer> dataStoredHash;
     public static Vector<DataPeerInitializer> dataPeerHash;
     public static Hashtable<String, ArrayList<String>> storeCounter;
+    public static ArrayList<FileChunk> restoreTemp;
+    public static Boolean currentlyRestoring;
+    public static String fileRestoring;
 
     public Peer(String[] args) throws IOException {
 
         peerID = args[1];
         mc = new MC(args[3], args[4]);
-        //here will initiate the mdr and the mdb
         mdb = new MDB(args[5], args[6]);
         mdr = new MDR(args[7], args[8]);
 
@@ -33,6 +35,9 @@ public class Peer implements MessageRMI {
         dataStoredHash = new Vector<DataStoreInitializer>();
         dataPeerHash = new Vector<DataPeerInitializer>();
         storeCounter = new Hashtable<String, ArrayList<String>>();
+        restoreTemp = new ArrayList<FileChunk>();
+        currentlyRestoring = false;
+        fileRestoring = "";
     }
 
     public void getMessage() throws IOException {
@@ -48,10 +53,21 @@ public class Peer implements MessageRMI {
         return;
     }
 
-    public void restore(String filename) throws IOException {
+    public String restore(String filename) throws IOException {
+        if(!currentlyRestoring){
+            for (int i = 0; i < dataPeerHash.size(); i++) {
+                if (dataPeerHash.get(i).getPathname().equals(filename)){
 
-        mc.sendMessage(filename);
-        return;
+                    fileRestoring = filename;
+                    currentlyRestoring = true;
+                    mc.sendMessage(i);
+                    return "Restoring file " + filename;
+                }
+            }
+            return "File " + filename + " not backed up!"; 
+        } else {
+            return "Already restoring the file " + fileRestoring + "!";
+        }
     }
 
     public void delete(String filename) throws IOException {
@@ -133,5 +149,17 @@ public class Peer implements MessageRMI {
 
     public static MDR getMDR() {
         return mdr;
+    } 
+
+    public static ArrayList<FileChunk> getRestoreTemp(){
+        return restoreTemp;
+    }
+
+    public static Boolean getCurrentlyRestoring(){
+        return currentlyRestoring;
+    }
+
+    public static String getFileRestoring(){
+        return fileRestoring;
     }
 }

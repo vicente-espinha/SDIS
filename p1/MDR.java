@@ -21,7 +21,7 @@ public class MDR implements Runnable {
             this.group = InetAddress.getByName(address);
             this.port = Integer.parseInt(port);
             this.msocket = new MulticastSocket(this.port);
-            msocket.joinGroup(group);
+            this.msocket.joinGroup(group);
             this.msocket.setTimeToLive(2);
             System.out.println("Multicast Data Recovery Channel (MDR) open on " + address + ":" + this.port);
 

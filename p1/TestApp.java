@@ -26,9 +26,10 @@ public class TestApp {
                     System.out.println("Missing Arguments. For the backup protocol provide all the arguments");
                 break;
             case "RESTORE":
-                if (args.length == 3)
-                    stub.restore(args[2]);
-                else
+                if (args.length == 3){
+                    String response = stub.restore(args[2]);
+                    System.out.println(response);
+                } else
                     System.out.println("Wrong number of arguments");
                 break;
             case "DELETE":

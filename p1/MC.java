@@ -39,34 +39,24 @@ public class MC implements Runnable {
         return this.msocket;
     }
 
-    public void sendMessage(String fileName) throws IOException {
+    public void sendMessage(int identifierFile) throws IOException {
 
-        try {
+        Message msg = new Message("1.0");
 
-            Message msg = new Message("1.0");
-            String fileID = msg.generateFileID(fileName);
+        int nChunks = Peer.getDataPeerInitializerVector().get(identifierFile).getNumChunks(); //saves the number of chunks of the file
 
-            for (int i = 0; i < Peer.getDataPeerInitializerVector().size(); i++) {
-                if (Peer.getDataPeerInitializerVector().get(i).getFileID().equals(fileID)) {
+        for (int j = 1; j <= nChunks; j++) {
 
-                    int nChunks = Peer.getDataPeerInitializerVector().get(i).getNumChunks(); //saves the number of chunks of the file
+            String fileID = Peer.getDataPeerInitializerVector().get(identifierFile).getFileID();
+            byte[] msgArr = msg.generateRestoreReq(fileID, j);
 
-                    for (int j = 1; j < nChunks; i++) {
+            DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
 
-                        byte[] msgArr = msg.generateRestoreReq(fileID, j);
+            MCSendScheduled sender = new MCSendScheduled(message);
 
-                        DatagramPacket message = new DatagramPacket(msgArr, msgArr.length, this.group, this.port);
-
-                        SendGetChunk sender = new SendGetChunk(message);
-
-                        Random rand = new Random();
-                        int randomNum = rand.nextInt(400);
-                        Peer.executer.schedule(sender, randomNum, TimeUnit.MILLISECONDS);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            Random rand = new Random();
+            int randomNum = rand.nextInt(400);
+            Peer.executer.schedule(sender, randomNum, TimeUnit.MILLISECONDS);
         }
 
         return;

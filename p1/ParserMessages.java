@@ -5,6 +5,8 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.ArrayList;
 import java.io.File;
+import java.io.*;
+
 
 public class ParserMessages implements Runnable {
     static final int TYPE = 0;
@@ -162,8 +164,45 @@ public class ParserMessages implements Runnable {
 
     }
 
-    public void processChunk(){
-        
+    public void processChunk() {
+        if (Peer.getCurrentlyRestoring()) {
+            for (int i = 0; i < Peer.getDataPeerInitializerVector().size(); i++) {
+                if (Peer.getDataPeerInitializerVector().get(i).getFileID().equals(this.headerArgs[FILEID])) {
+                    saveRestoredChunk(i);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void saveRestoredChunk(int i) {
+        FileChunk chunk = Peer.getRestoreTemp().get(Integer.parseInt(this.headerArgs[CHUNKNO]) - 1);
+        if (chunk == null) {
+            this.body = Arrays.copyOfRange(this.message, this.index + (Message.CRLF + Message.CRLF).length(),
+                    this.message.length); //separates the chunk body
+
+            chunk = new FileChunk(this.headerArgs[FILEID], Integer.parseInt(this.headerArgs[CHUNKNO]), this.body,
+                    Integer.parseInt(this.headerArgs[REPDEG]));
+            Peer.getRestoreTemp().set(Integer.parseInt(headerArgs[CHUNKNO]) - 1, chunk);
+        }
+        if (Peer.getDataPeerInitializerVector().get(i).getNumChunks() == Peer.getRestoreTemp().size()) {
+
+            try {
+                FileOutputStream out = new FileOutputStream(Peer.getFileRestoring(), false);
+                out.write(Peer.getRestoreTemp().get(0).getBody()); //writes in bynary file
+                out.close(); //closes output stream
+                out = new FileOutputStream(Peer.getFileRestoring(), true);
+                for (int c = 1; c < Peer.getRestoreTemp().size(); c++) {
+                    out.write(Peer.getRestoreTemp().get(0).getBody()); //writes in bynary file
+                }
+                out.close(); //closes output stream
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     public void run() {
