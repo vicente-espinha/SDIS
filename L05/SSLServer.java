@@ -46,17 +46,20 @@ public class SSLServer{
         if(cipherSuites.length > 0)
             this.s.setEnabledCipherSuites(cipherSuites);
         else
-            this.s.setEnabledCipherSuites(cipherSuites); 
+            this.s.setEnabledCipherSuites(ssf.getDefaultCipherSuites()); 
 
     }
 
     public void receiveRequest() throws IOException{
         while(true){
             SSLSocket request = (SSLSocket) this.s.accept();
-            BufferedReader inBuff = new BufferedReader(new InputStreamReader(request.getInputStream()));
+            PrintWriter out = new PrintWriter(request.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(request.getInputStream()));
 
-            String msg = inBuff.readLine();
+            String msg = in.readLine();
             System.out.println("MSG: " + msg);
+            String a = "Received: " + msg;
+            out.println(a); 
 
         }
     }
