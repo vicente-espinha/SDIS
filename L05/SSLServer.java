@@ -1,7 +1,8 @@
-import java.io.IOException;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
+import java.net.SocketException;
+import java.io.*;
 
 public class SSLServer{
 
@@ -9,9 +10,11 @@ public class SSLServer{
     SSLServerSocket s;
 
     public static void main(String[] args) {
+        //TODO check number of args
         
         try{
             SSLServer sslServer = new SSLServer(args);
+            sslServer.receiveRequest();
 
         } catch(IOException e){
             e.printStackTrace();
@@ -33,7 +36,7 @@ public class SSLServer{
         try {  
             this.s = (SSLServerSocket) ssf.createServerSocket(this.port);  
         }  
-        catch( IOException e) {  
+        catch(IOException e) {  
             System.out.println("Server - Failed to create SSLServerSocket");  
             e.getMessage();  
             return;  
@@ -47,9 +50,13 @@ public class SSLServer{
 
     }
 
-    public void receiveRequest() {
+    public void receiveRequest() throws IOException{
         while(true){
             SSLSocket request = (SSLSocket) this.s.accept();
+            BufferedReader inBuff = new BufferedReader(new InputStreamReader(request.getInputStream()));
+
+            String msg = inBuff.readLine();
+            System.out.println("MSG: " + msg);
 
         }
     }
